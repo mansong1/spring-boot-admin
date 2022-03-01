@@ -76,15 +76,23 @@ pipeline:
                         execution:
                             steps:
                                 - step:
+                                      type: Run
+                                      name: Build
+                                      identifier: Build
+                                      spec:
+                                          connectorRef: org.Dockerhub
+                                          image: maven:3.8.4-openjdk-17
+                                          command: mvn -B spring-javaformat:apply --no-transfer-progress
+                                - step:
                                       type: RunTests
-                                      name: Build and Test
-                                      identifier: Build_and_Test
+                                      name: Run Tests
+                                      identifier: Run_Tests
                                       spec:
                                           connectorRef: org.Dockerhub
                                           image: maven:3.8.4-openjdk-17
                                           language: Java
                                           buildTool: Maven
-                                          args: -B spring-javaformat:apply --no-transfer-progress
+                                          args: -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
                                           runOnlySelectedTests: true
                                           reports:
                                               type: JUnit
