@@ -38,7 +38,7 @@ pipeline:
                                           shell: Powershell
                                 - step:
                                       type: Run
-                                      name: SetUp Maven
+                                      name: Build
                                       identifier: SetUp_Maven
                                       spec:
                                           command: |-
@@ -46,13 +46,7 @@ pipeline:
                                               refreshenv
                                               $Env:Path
                                               mvn -version
-                                          shell: Powershell
-                                - step:
-                                      type: Run
-                                      name: Build
-                                      identifier: Build
-                                      spec:
-                                          command: mvn -B spring-javaformat:apply --no-transfer-progress
+                                              mvn -B spring-javaformat:apply --no-transfer-progress
                                           shell: Powershell
               - stage:
                     name: linux
