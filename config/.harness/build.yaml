@@ -20,7 +20,7 @@ pipeline:
                                         sudo apt update -y
                                         sudo apt install adoptopenjdk-8-hotspot -y
                                 name: JDK
-                                identifier: Set_up_JDK_18
+                                identifier: JDK
                   cloneCodebase: true
               name: linux
               identifier: linux
