@@ -33,3 +33,10 @@ pipeline:
                                 spec:
                                     command: choco install openjdk
                                     shell: Powershell
+                          - step:
+                                type: Run
+                                name: Build
+                                identifier: Build
+                                spec:
+                                    command: mvn -B spring-javaformat:apply --no-transfer-progress
+                                    shell: Powershell
