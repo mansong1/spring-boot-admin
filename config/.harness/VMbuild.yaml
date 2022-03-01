@@ -46,7 +46,5 @@ pipeline:
                                 name: Build
                                 identifier: Build
                                 spec:
-                                    command: |-
-                                        java -version
-                                        mvn -v
+                                    command: $Env:Path
                                     shell: Powershell
