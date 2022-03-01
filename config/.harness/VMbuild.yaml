@@ -47,6 +47,6 @@ pipeline:
                                 identifier: Build
                                 spec:
                                     command: |-
-                                        which jdk
-                                        which mvn
+                                        java -version
+                                        mvn -v
                                     shell: Powershell
