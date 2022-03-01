@@ -29,15 +29,6 @@ pipeline:
                             steps:
                                 - step:
                                       type: Run
-                                      name: SetUp JDK
-                                      identifier: SetUp_JDK
-                                      spec:
-                                          command: |-
-                                              choco install openjdk
-                                              [System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\OpenJDK\jdk-17.0.1\bin")
-                                          shell: Powershell
-                                - step:
-                                      type: Run
                                       name: Build
                                       identifier: SetUp_Maven
                                       spec:
