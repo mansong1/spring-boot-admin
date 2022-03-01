@@ -44,6 +44,7 @@ pipeline:
                                         choco install maven
                                         refreshenv
                                         $Env:Path
+                                        mvn -version
                                     shell: Powershell
                           - step:
                                 type: Run
@@ -51,6 +52,8 @@ pipeline:
                                 identifier: Build
                                 spec:
                                     command: |-
-                                        mvn -B spring-javaformat:apply --no-transfer-progress
-                                        mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                        java -v
+
+                                        # mvn -B spring-javaformat:apply --no-transfer-progress
+                                        # mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
                                     shell: Powershell
