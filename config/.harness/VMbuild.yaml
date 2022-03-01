@@ -48,19 +48,11 @@ pipeline:
                                               mvn -version
                                           shell: Powershell
                                 - step:
-                                      type: RunTests
-                                      name: Build and Test
-                                      identifier: Build_and_Test
+                                      type: Run
+                                      name: Build
+                                      identifier: Build
                                       spec:
-                                          language: Java
-                                          buildTool: Maven
-                                          args: -B spring-javaformat:apply --no-transfer-progress
-                                          runOnlySelectedTests: true
-                                          reports:
-                                              type: JUnit
-                                              spec:
-                                                  paths:
-                                                      - "**/*.xml"
+                                          command: mvn -B spring-javaformat:apply --no-transfer-progress
                                           shell: Powershell
               - stage:
                     name: linux
@@ -89,7 +81,7 @@ pipeline:
                                       identifier: Run_Tests
                                       spec:
                                           connectorRef: org.Dockerhub
-                                          image: maven:3.8.4-openjdk-17
+                                          image: maven:3.8.4-openjdk-8
                                           language: Java
                                           buildTool: Maven
                                           args: -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
