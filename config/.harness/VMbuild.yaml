@@ -52,7 +52,7 @@ pipeline:
                                 identifier: Build
                                 spec:
                                     command: |-
-                                        java -v
+                                        C:\Program Files\OpenJDK\jdk-17.0.1\bin\java -v
 
                                         # mvn -B spring-javaformat:apply --no-transfer-progress
                                         # mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
