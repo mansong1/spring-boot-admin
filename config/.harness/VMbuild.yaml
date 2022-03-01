@@ -42,6 +42,7 @@ pipeline:
                                       identifier: SetUp_Maven
                                       spec:
                                           command: |-
+                                              choco install openjdk
                                               choco install maven
                                               refreshenv
                                               $Env:Path
