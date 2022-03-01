@@ -47,5 +47,7 @@ pipeline:
                                 name: Build
                                 identifier: Build
                                 spec:
-                                    command: $Env:Path
+                                    command: |-
+                                        refreshenv
+                                        $Env:Path
                                     shell: Powershell
