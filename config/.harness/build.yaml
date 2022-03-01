@@ -1,23 +1,8 @@
 pipeline:
-    name: build
-    identifier: build
-    allowStageExecutions: false
-    projectIdentifier: Springboot_Admin
-    orgIdentifier: default
-    tags: {}
-    properties:
-        ci:
-            codebase:
-                connectorRef: org.Github
-                repoName: spring-boot-admin
-                build: <+input>
     stages:
         - stage:
-              name: Linux
-              identifier: VMBuilds
               type: CI
               spec:
-                  cloneCodebase: true
                   infrastructure:
                       type: VM
                       spec:
@@ -28,11 +13,25 @@ pipeline:
                       steps:
                           - step:
                                 type: Run
-                                name: Set up JDK 1.8
-                                identifier: Set_up_JDK_18
                                 spec:
                                     command: |-
                                         wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
                                         sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
                                         sudo apt update -y
                                         sudo apt install adoptopenjdk-8-hotspot -y
+                                name: JDK
+                                identifier: Set_up_JDK_18
+                  cloneCodebase: true
+              name: linux
+              identifier: linux
+    properties:
+        ci:
+            codebase:
+                repoName: spring-boot-admin
+                connectorRef: org.Github
+                build: <+input>
+    projectIdentifier: Springboot_Admin2
+    orgIdentifier: default
+    name: build
+    identifier: build
+    allowStageExecutions: false
