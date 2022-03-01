@@ -68,7 +68,7 @@ pipeline:
                                       identifier: Build
                                       spec:
                                           connectorRef: org.Dockerhub
-                                          image: maven:3.8.4-openjdk-17
+                                          image: maven:3.8.4-openjdk-8
                                           command: mvn -B spring-javaformat:apply --no-transfer-progress
                                 - step:
                                       type: RunTests
