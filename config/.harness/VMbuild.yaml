@@ -86,3 +86,8 @@ pipeline:
                                           buildTool: Maven
                                           args: -B spring-javaformat:apply --no-transfer-progress
                                           runOnlySelectedTests: true
+                                          reports:
+                                              type: JUnit
+                                              spec:
+                                                  paths:
+                                                      - "**/*.xml"
