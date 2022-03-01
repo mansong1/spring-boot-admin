@@ -26,17 +26,27 @@ pipeline:
                               identifier: windows
                   execution:
                       steps:
-                          - step:
-                                type: Run
-                                name: SetUp JDK
-                                identifier: SetUp_JDK
-                                spec:
-                                    command: choco install openjdk
-                                    shell: Powershell
+                          - parallel:
+                                - step:
+                                      type: Run
+                                      name: SetUp JDK
+                                      identifier: SetUp_JDK
+                                      spec:
+                                          command: choco install openjdk
+                                          shell: Powershell
+                                - step:
+                                      type: Run
+                                      name: SetUp Maven
+                                      identifier: SetUp_Maven
+                                      spec:
+                                          command: choco install maven
+                                          shell: Powershell
                           - step:
                                 type: Run
                                 name: Build
                                 identifier: Build
                                 spec:
-                                    command: ls
+                                    command: |-
+                                        which jdk
+                                        which mvn
                                     shell: Powershell
