@@ -47,13 +47,16 @@ pipeline:
                                         mvn -version
                                     shell: Powershell
                           - step:
-                                type: Run
-                                name: Build
-                                identifier: Build
+                                type: RunTests
+                                name: Build and Test
+                                identifier: Build_and_Test
                                 spec:
-                                    command: |-
-                                        "C:\Program Files\OpenJDK\jdk-17.0.1\bin\java" -version
-
-                                        # mvn -B spring-javaformat:apply --no-transfer-progress
-                                        # mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
-                                    shell: Powershell
+                                    language: Java
+                                    buildTool: Maven
+                                    args: mvn -B spring-javaformat:apply --no-transfer-progress; mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                    runOnlySelectedTests: true
+                                    reports:
+                                        type: JUnit
+                                        spec:
+                                            paths:
+                                                - "**/*.xml"
