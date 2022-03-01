@@ -54,7 +54,7 @@ pipeline:
                                       spec:
                                           language: Java
                                           buildTool: Maven
-                                          args: mvn -B spring-javaformat:apply --no-transfer-progress; mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                          args: mvn -B spring-javaformat:apply --no-transfer-progress
                                           runOnlySelectedTests: true
                                           reports:
                                               type: JUnit
@@ -84,5 +84,5 @@ pipeline:
                                           image: maven:3.8.4-openjdk-17
                                           language: Java
                                           buildTool: Maven
-                                          args: mvn -B spring-javaformat:apply --no-transfer-progress;mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                          args: mvn -B spring-javaformat:apply --no-transfer-progress
                                           runOnlySelectedTests: true
