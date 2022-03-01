@@ -51,6 +51,6 @@ pipeline:
                                 identifier: Build
                                 spec:
                                     command: |-
-                                        refreshenv
-                                        $Env:Path
+                                        mvn -B spring-javaformat:apply --no-transfer-progress
+                                        mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
                                     shell: Powershell
