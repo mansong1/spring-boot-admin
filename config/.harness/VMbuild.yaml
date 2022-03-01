@@ -38,5 +38,5 @@ pipeline:
                                 name: Build
                                 identifier: Build
                                 spec:
-                                    command: mvn -B spring-javaformat:apply --no-transfer-progress
+                                    command: ls
                                     shell: Powershell
