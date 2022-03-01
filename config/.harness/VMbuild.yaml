@@ -12,51 +12,76 @@ pipeline:
                 repoName: spring-boot-admin
                 build: <+input>
     stages:
-        - stage:
-              name: windows
-              identifier: linux
-              type: CI
-              spec:
-                  cloneCodebase: true
-                  infrastructure:
-                      type: VM
-                      spec:
-                          type: Pool
-                          spec:
-                              identifier: windows
-                  execution:
-                      steps:
-                          - step:
-                                type: Run
-                                name: SetUp JDK
-                                identifier: SetUp_JDK
+        - parallel:
+              - stage:
+                    name: windows
+                    identifier: linux
+                    type: CI
+                    spec:
+                        cloneCodebase: true
+                        infrastructure:
+                            type: VM
+                            spec:
+                                type: Pool
                                 spec:
-                                    command: |-
-                                        choco install openjdk
-                                        [System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\OpenJDK\jdk-17.0.1\bin")
-                                    shell: Powershell
-                          - step:
-                                type: Run
-                                name: SetUp Maven
-                                identifier: SetUp_Maven
-                                spec:
-                                    command: |-
-                                        choco install maven
-                                        refreshenv
-                                        $Env:Path
-                                        mvn -version
-                                    shell: Powershell
-                          - step:
-                                type: RunTests
-                                name: Build and Test
-                                identifier: Build_and_Test
-                                spec:
-                                    language: Java
-                                    buildTool: Maven
-                                    args: mvn -B spring-javaformat:apply --no-transfer-progress; mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
-                                    runOnlySelectedTests: true
-                                    reports:
-                                        type: JUnit
-                                        spec:
-                                            paths:
-                                                - "**/*.xml"
+                                    identifier: windows
+                        execution:
+                            steps:
+                                - step:
+                                      type: Run
+                                      name: SetUp JDK
+                                      identifier: SetUp_JDK
+                                      spec:
+                                          command: |-
+                                              choco install openjdk
+                                              [System.Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\OpenJDK\jdk-17.0.1\bin")
+                                          shell: Powershell
+                                - step:
+                                      type: Run
+                                      name: SetUp Maven
+                                      identifier: SetUp_Maven
+                                      spec:
+                                          command: |-
+                                              choco install maven
+                                              refreshenv
+                                              $Env:Path
+                                              mvn -version
+                                          shell: Powershell
+                                - step:
+                                      type: RunTests
+                                      name: Build and Test
+                                      identifier: Build_and_Test
+                                      spec:
+                                          language: Java
+                                          buildTool: Maven
+                                          args: mvn -B spring-javaformat:apply --no-transfer-progress; mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                          runOnlySelectedTests: true
+                                          reports:
+                                              type: JUnit
+                                              spec:
+                                                  paths:
+                                                      - "**/*.xml"
+              - stage:
+                    name: linux
+                    identifier: linux1
+                    type: CI
+                    spec:
+                        cloneCodebase: true
+                        infrastructure:
+                            type: KubernetesDirect
+                            spec:
+                                connectorRef: org.GKE
+                                namespace: harness-delegate-ng
+                        execution:
+                            steps:
+                                - step:
+                                      type: RunTests
+                                      name: Build and Test
+                                      identifier: Build_and_Test
+                                      spec:
+                                          connectorRef: org.Dockerhub
+                                          image: maven:3.8.4-openjdk-17
+                                          language: Java
+                                          buildTool: Maven
+                                          args: mvn -B spring-javaformat:apply --no-transfer-progress;mvn -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                          runOnlySelectedTests: true
