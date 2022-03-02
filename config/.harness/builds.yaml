@@ -57,7 +57,7 @@ pipeline:
                                           shell: Powershell
               - stage:
                     name: linux
-                    identifier: linux1
+                    identifier: linux
                     type: CI
                     spec:
                         cloneCodebase: true
