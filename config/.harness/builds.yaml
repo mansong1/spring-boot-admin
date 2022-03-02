@@ -42,7 +42,7 @@ pipeline:
                                           shell: Powershell
                                 - step:
                                       type: RunTests
-                                      name: Tests
+                                      name: Run Tests
                                       identifier: Tests
                                       spec:
                                           language: Java
