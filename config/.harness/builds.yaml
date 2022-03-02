@@ -54,7 +54,6 @@ pipeline:
                                               spec:
                                                   paths:
                                                       - "**/*.xml"
-                                          shell: Powershell
               - stage:
                     name: linux
                     identifier: linux
@@ -92,4 +91,8 @@ pipeline:
                                               spec:
                                                   paths:
                                                       - "**/*.xml"
+                                          resources:
+                                              limits:
+                                                  memory: 2Gi
+                                                  cpu: "1"
                                       failureStrategies: []
