@@ -15,7 +15,7 @@ pipeline:
         - parallel:
               - stage:
                     name: windows
-                    identifier: linux
+                    identifier: windows
                     type: CI
                     spec:
                         cloneCodebase: true
