@@ -16,22 +16,21 @@
 
 package de.codecentric.boot.admin.server.ui.extensions;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.IOException;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class UiRoutesScannerTest {
 
-	private final UiRoutesScanner scanner = new UiRoutesScanner(new PathMatchingResourcePatternResolver());
+  private final UiRoutesScanner scanner =
+      new UiRoutesScanner(new PathMatchingResourcePatternResolver());
 
-	@Test
-	public void should_find_route() throws IOException {
-		List<String> routes = this.scanner.scan("classpath:/META-INF/test-extensions/");
-		assertThat(routes).containsExactlyInAnyOrder("/custom/**");
-	}
-
+  @Test
+  public void should_find_route() throws IOException {
+    List<String> routes = this.scanner.scan("classpath:/META-INF/test-extensions/");
+    assertThat(routes).containsExactlyInAnyOrder("/custom/**");
+  }
 }

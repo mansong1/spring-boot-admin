@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import {ApplicationLoggers, InstanceLoggers} from './service';
+import { ApplicationLoggers, InstanceLoggers } from './service'
 
 describe('InstanceLoggers', () => {
   const instance = {
     id: 'test-1',
     fetchLoggers: jest.fn(),
     configureLogger: jest.fn()
-  };
-  const service = new InstanceLoggers(instance);
+  }
+  const service = new InstanceLoggers(instance)
 
   it('should configure loggers', () => {
-    service.configureLogger('ROOT', 'WARN');
-    expect(instance.configureLogger).toHaveBeenCalledWith('ROOT', 'WARN');
-  });
+    service.configureLogger('ROOT', 'WARN')
+    expect(instance.configureLogger).toHaveBeenCalledWith('ROOT', 'WARN')
+  })
 
   it('should fetch loggers', async () => {
     instance.fetchLoggers.mockReturnValue(
@@ -35,7 +35,7 @@ describe('InstanceLoggers', () => {
         data: {
           levels: ['TRACE', 'INFO', 'FATAL'],
           loggers: {
-            'ROOT': {
+            ROOT: {
               configuredLevel: 'INFO',
               effectiveLevel: 'INFO'
             },
@@ -46,9 +46,9 @@ describe('InstanceLoggers', () => {
           }
         }
       })
-    );
+    )
 
-    const cfg = await service.fetchLoggers();
+    const cfg = await service.fetchLoggers()
 
     expect(cfg).toEqual({
       errors: [],
@@ -69,20 +69,20 @@ describe('InstanceLoggers', () => {
         }]
       }]
     })
-  });
-});
+  })
+})
 
 describe('ApplicationLoggers', () => {
   const application = {
     fetchLoggers: jest.fn(),
     configureLogger: jest.fn()
-  };
-  const service = new ApplicationLoggers(application);
+  }
+  const service = new ApplicationLoggers(application)
 
   it('should configure loggers', () => {
-    service.configureLogger('ROOT', 'WARN');
-    expect(application.configureLogger).toHaveBeenCalledWith('ROOT', 'WARN');
-  });
+    service.configureLogger('ROOT', 'WARN')
+    expect(application.configureLogger).toHaveBeenCalledWith('ROOT', 'WARN')
+  })
 
   it('should fetch loggers', async () => {
     application.fetchLoggers.mockReturnValue(
@@ -94,7 +94,7 @@ describe('ApplicationLoggers', () => {
             body: {
               levels: ['TRACE', 'FATAL'],
               loggers: {
-                'ROOT': {
+                ROOT: {
                   configuredLevel: 'INFO',
                   effectiveLevel: 'INFO'
                 },
@@ -111,7 +111,7 @@ describe('ApplicationLoggers', () => {
             body: {
               levels: ['INFO'],
               loggers: {
-                'ROOT': {
+                ROOT: {
                   configuredLevel: 'INFO',
                   effectiveLevel: 'INFO'
                 },
@@ -124,9 +124,9 @@ describe('ApplicationLoggers', () => {
           }
         ]
       })
-    );
+    )
 
-    const cfg = await service.fetchLoggers();
+    const cfg = await service.fetchLoggers()
 
     expect(cfg).toEqual({
       errors: [],
@@ -155,5 +155,5 @@ describe('ApplicationLoggers', () => {
         }]
       }]
     })
-  });
-});
+  })
+})

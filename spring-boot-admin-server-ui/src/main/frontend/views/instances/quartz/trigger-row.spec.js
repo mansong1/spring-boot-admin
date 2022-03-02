@@ -1,24 +1,22 @@
-import {render} from '@/test-utils';
-import TriggerRow from './trigger-row';
-import {screen} from '@testing-library/vue';
-import userEvent from '@testing-library/user-event';
-
+import { render } from '@/test-utils'
+import TriggerRow from './trigger-row'
+import { screen } from '@testing-library/vue'
+import userEvent from '@testing-library/user-event'
 
 describe('trigger-row.vue', () => {
-
-  beforeEach(async () =>{
+  beforeEach(async () => {
     await render(TriggerRow, {
       props: {
         triggerDetail: {
-          'group': 'group2',
-          'name': 'triggerSampleJob2',
-          'state': 'NORMAL',
-          'type': 'simple',
-          'startTime': 1629451789546,
-          'previousFireTime': 1629452183546,
-          'nextFireTime': 1629452185546,
-          'priority': 0,
-          'simple': {'interval': 2000, 'repeatCount': -1, 'timesTriggered': 198}
+          group: 'group2',
+          name: 'triggerSampleJob2',
+          state: 'NORMAL',
+          type: 'simple',
+          startTime: 1629451789546,
+          previousFireTime: 1629452183546,
+          nextFireTime: 1629452185546,
+          priority: 0,
+          simple: { interval: 2000, repeatCount: -1, timesTriggered: 198 }
         }
       }
     })

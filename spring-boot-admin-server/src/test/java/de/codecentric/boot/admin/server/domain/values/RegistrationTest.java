@@ -16,28 +16,35 @@
 
 package de.codecentric.boot.admin.server.domain.values;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.junit.jupiter.api.Test;
 
 public class RegistrationTest {
 
-	@Test
-	public void invariants() {
-		assertThatThrownBy(() -> Registration.create(null, null).build()).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("'name' must not be empty.");
+  @Test
+  public void invariants() {
+    assertThatThrownBy(() -> Registration.create(null, null).build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'name' must not be empty.");
 
-		assertThatThrownBy(() -> Registration.create("test", null).build()).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("'healthUrl' must not be empty.");
+    assertThatThrownBy(() -> Registration.create("test", null).build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'healthUrl' must not be empty.");
 
-		assertThatThrownBy(() -> Registration.create("test", "invalid").build())
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("'healthUrl' is not valid: invalid");
+    assertThatThrownBy(() -> Registration.create("test", "invalid").build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'healthUrl' is not valid: invalid");
 
-		assertThatThrownBy(() -> Registration.create("test", "http://example.com").managementUrl("invalid").build())
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("'managementUrl' is not valid: invalid");
+    assertThatThrownBy(
+            () ->
+                Registration.create("test", "http://example.com").managementUrl("invalid").build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'managementUrl' is not valid: invalid");
 
-		assertThatThrownBy(() -> Registration.create("test", "http://example.com").serviceUrl("invalid").build())
-				.isInstanceOf(IllegalArgumentException.class).hasMessage("'serviceUrl' is not valid: invalid");
-	}
-
+    assertThatThrownBy(
+            () -> Registration.create("test", "http://example.com").serviceUrl("invalid").build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'serviceUrl' is not valid: invalid");
+  }
 }

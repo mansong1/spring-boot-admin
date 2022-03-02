@@ -17,15 +17,13 @@
 package de.codecentric.boot.admin.client.registration;
 
 import java.time.Duration;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class ReactiveRegistrationClientTest extends AbstractRegistrationClientTest {
 
-	@BeforeEach
-	public void setUp() {
-		super.setUp(new ReactiveRegistrationClient(WebClient.create(), Duration.ofSeconds(10)));
-	}
-
+  @BeforeEach
+  public void setUp() {
+    super.setUp(new ReactiveRegistrationClient(WebClient.create(), Duration.ofSeconds(10)));
+  }
 }

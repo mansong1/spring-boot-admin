@@ -22,17 +22,16 @@ import java.util.Map;
 
 public class CompositeMetadataContributor implements MetadataContributor {
 
-	private final List<MetadataContributor> delegates;
+  private final List<MetadataContributor> delegates;
 
-	public CompositeMetadataContributor(List<MetadataContributor> delegates) {
-		this.delegates = delegates;
-	}
+  public CompositeMetadataContributor(List<MetadataContributor> delegates) {
+    this.delegates = delegates;
+  }
 
-	@Override
-	public Map<String, String> getMetadata() {
-		Map<String, String> metadata = new LinkedHashMap<>();
-		delegates.forEach((delegate) -> metadata.putAll(delegate.getMetadata()));
-		return metadata;
-	}
-
+  @Override
+  public Map<String, String> getMetadata() {
+    Map<String, String> metadata = new LinkedHashMap<>();
+    delegates.forEach((delegate) -> metadata.putAll(delegate.getMetadata()));
+    return metadata;
+  }
 }

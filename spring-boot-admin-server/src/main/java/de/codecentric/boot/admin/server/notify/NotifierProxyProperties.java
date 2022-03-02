@@ -22,24 +22,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("spring.boot.admin.notify.proxy")
 public class NotifierProxyProperties {
 
-	/**
-	 * Proxy-Host for sending notifications
-	 */
-	private String host;
+  /** Proxy-Host for sending notifications */
+  private String host;
 
-	/**
-	 * Proxy-Port for sending notifications
-	 */
-	private int port;
+  /** Proxy-Port for sending notifications */
+  private int port;
 
-	/**
-	 * Proxy-User for sending notifications (if proxy requires authentication).
-	 */
-	private String username;
+  /** Proxy-User for sending notifications (if proxy requires authentication). */
+  private String username;
 
-	/**
-	 * Proxy-Password for sending notifications (if proxy requires authentication).
-	 */
-	private String password;
-
+  /** Proxy-Password for sending notifications (if proxy requires authentication). */
+  private String password;
 }

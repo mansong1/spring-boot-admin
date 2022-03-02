@@ -16,47 +16,46 @@
 
 package de.codecentric.boot.admin.server.web.client.cookies;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.services.AbstractEventHandler;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.services.AbstractEventHandler;
-
 /**
- * Triggers cleanup of {@link de.codecentric.boot.admin.server.domain.entities.Instance}
- * specific data in {@link PerInstanceCookieStore} on receiving an
- * {@link InstanceDeregisteredEvent}.
+ * Triggers cleanup of {@link de.codecentric.boot.admin.server.domain.entities.Instance} specific
+ * data in {@link PerInstanceCookieStore} on receiving an {@link InstanceDeregisteredEvent}.
  */
 public class CookieStoreCleanupTrigger extends AbstractEventHandler<InstanceDeregisteredEvent> {
 
-	private final PerInstanceCookieStore cookieStore;
+  private final PerInstanceCookieStore cookieStore;
 
-	/**
-	 * Creates a trigger to cleanup the cookie store on deregistering of an
-	 * {@link de.codecentric.boot.admin.server.domain.entities.Instance}.
-	 * @param publisher publisher of {@link InstanceEvent}s events
-	 * @param cookieStore the store to inform about deregistration of an
-	 * {@link de.codecentric.boot.admin.server.domain.entities.Instance}
-	 */
-	public CookieStoreCleanupTrigger(final Publisher<InstanceEvent> publisher,
-			final PerInstanceCookieStore cookieStore) {
-		super(publisher, InstanceDeregisteredEvent.class);
+  /**
+   * Creates a trigger to cleanup the cookie store on deregistering of an {@link
+   * de.codecentric.boot.admin.server.domain.entities.Instance}.
+   *
+   * @param publisher publisher of {@link InstanceEvent}s events
+   * @param cookieStore the store to inform about deregistration of an {@link
+   *     de.codecentric.boot.admin.server.domain.entities.Instance}
+   */
+  public CookieStoreCleanupTrigger(
+      final Publisher<InstanceEvent> publisher, final PerInstanceCookieStore cookieStore) {
+    super(publisher, InstanceDeregisteredEvent.class);
 
-		this.cookieStore = cookieStore;
-	}
+    this.cookieStore = cookieStore;
+  }
 
-	@Override
-	protected Publisher<Void> handle(final Flux<InstanceDeregisteredEvent> publisher) {
-		return publisher.flatMap((event) -> {
-			cleanupCookieStore(event);
-			return Mono.empty();
-		});
-	}
+  @Override
+  protected Publisher<Void> handle(final Flux<InstanceDeregisteredEvent> publisher) {
+    return publisher.flatMap(
+        (event) -> {
+          cleanupCookieStore(event);
+          return Mono.empty();
+        });
+  }
 
-	private void cleanupCookieStore(final InstanceDeregisteredEvent event) {
-		cookieStore.cleanupInstance(event.getInstance());
-	}
-
+  private void cleanupCookieStore(final InstanceDeregisteredEvent event) {
+    cookieStore.cleanupInstance(event.getInstance());
+  }
 }

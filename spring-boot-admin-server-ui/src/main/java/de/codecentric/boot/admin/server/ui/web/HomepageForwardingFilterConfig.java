@@ -17,19 +17,15 @@
 package de.codecentric.boot.admin.server.ui.web;
 
 import java.util.List;
-
 import lombok.Value;
 
 @Value
 public class HomepageForwardingFilterConfig {
 
-	String homepage;
+  String homepage;
 
-	List<String> routesIncludes;
+  List<String> routesIncludes;
 
-	/**
-	 * routes which are excluded intentionally (for instance downloads)
-	 */
-	List<String> routesExcludes;
-
+  /** routes which are excluded intentionally (for instance downloads) */
+  List<String> routesExcludes;
 }

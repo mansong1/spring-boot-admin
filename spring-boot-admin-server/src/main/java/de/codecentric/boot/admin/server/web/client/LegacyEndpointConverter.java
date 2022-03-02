@@ -17,30 +17,27 @@
 package de.codecentric.boot.admin.server.web.client;
 
 import java.util.function.Function;
-
 import org.springframework.core.io.buffer.DataBuffer;
 import reactor.core.publisher.Flux;
 
-/**
- * @author Johannes Edmeier
- */
+/** @author Johannes Edmeier */
 public class LegacyEndpointConverter {
 
-	private final String endpointId;
+  private final String endpointId;
 
-	private final Function<Flux<DataBuffer>, Flux<DataBuffer>> converterFn;
+  private final Function<Flux<DataBuffer>, Flux<DataBuffer>> converterFn;
 
-	protected LegacyEndpointConverter(String endpointId, Function<Flux<DataBuffer>, Flux<DataBuffer>> converterFn) {
-		this.endpointId = endpointId;
-		this.converterFn = converterFn;
-	}
+  protected LegacyEndpointConverter(
+      String endpointId, Function<Flux<DataBuffer>, Flux<DataBuffer>> converterFn) {
+    this.endpointId = endpointId;
+    this.converterFn = converterFn;
+  }
 
-	public boolean canConvert(Object endpointId) {
-		return this.endpointId.equals(endpointId);
-	}
+  public boolean canConvert(Object endpointId) {
+    return this.endpointId.equals(endpointId);
+  }
 
-	public Flux<DataBuffer> convert(Flux<DataBuffer> body) {
-		return converterFn.apply(body);
-	}
-
+  public Flux<DataBuffer> convert(Flux<DataBuffer> body) {
+    return converterFn.apply(body);
+  }
 }

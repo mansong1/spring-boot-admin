@@ -16,11 +16,23 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import de.codecentric.boot.admin.server.domain.entities.Instance;
+import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
+import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import de.codecentric.boot.admin.server.domain.values.Registration;
+import de.codecentric.boot.admin.server.domain.values.StatusInfo;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
@@ -30,175 +42,177 @@ import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import de.codecentric.boot.admin.server.domain.entities.Instance;
-import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
-import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-import de.codecentric.boot.admin.server.domain.values.Registration;
-import de.codecentric.boot.admin.server.domain.values.StatusInfo;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class SlackNotifierTest {
 
-	private static final String channel = "channel";
+  private static final String channel = "channel";
 
-	private static final String icon = "icon";
+  private static final String icon = "icon";
 
-	private static final String user = "user";
+  private static final String user = "user";
 
-	private static final String appName = "App";
+  private static final String appName = "App";
 
-	private static final Instance INSTANCE = Instance.create(InstanceId.of("-id-"))
-			.register(Registration.create(appName, "http://health").build());
+  private static final Instance INSTANCE =
+      Instance.create(InstanceId.of("-id-"))
+          .register(Registration.create(appName, "http://health").build());
 
-	private static final String message = "test";
+  private static final String message = "test";
 
-	private SlackNotifier notifier;
+  private SlackNotifier notifier;
 
-	private RestTemplate restTemplate;
+  private RestTemplate restTemplate;
 
-	private InstanceRepository repository;
+  private InstanceRepository repository;
 
-	@BeforeEach
-	public void setUp() {
-		repository = mock(InstanceRepository.class);
-		when(repository.find(INSTANCE.getId())).thenReturn(Mono.just(INSTANCE));
-		restTemplate = mock(RestTemplate.class);
+  @BeforeEach
+  public void setUp() {
+    repository = mock(InstanceRepository.class);
+    when(repository.find(INSTANCE.getId())).thenReturn(Mono.just(INSTANCE));
+    restTemplate = mock(RestTemplate.class);
 
-		notifier = new SlackNotifier(repository, restTemplate);
-		notifier.setUsername(user);
-		notifier.setWebhookUrl(URI.create("http://localhost/"));
-	}
+    notifier = new SlackNotifier(repository, restTemplate);
+    notifier.setUsername(user);
+    notifier.setWebhookUrl(URI.create("http://localhost/"));
+  }
 
-	@Test
-	public void test_onApplicationEvent_resolve() {
-		notifier.setChannel(channel);
-		notifier.setIcon(icon);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
-				.verifyComplete();
-		clearInvocations(restTemplate);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
+  @Test
+  public void test_onApplicationEvent_resolve() {
+    notifier.setChannel(channel);
+    notifier.setIcon(icon);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
+        .verifyComplete();
+    clearInvocations(restTemplate);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
 
-		Object expected = expectedMessage("good", user, icon, channel, standardMessage("UP"));
+    Object expected = expectedMessage("good", user, icon, channel, standardMessage("UP"));
 
-		verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
-	}
+    verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
+  }
 
-	@Test
-	public void test_onApplicationEvent_resolve_without_channel_and_icon() {
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
-				.verifyComplete();
-		clearInvocations(restTemplate);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
+  @Test
+  public void test_onApplicationEvent_resolve_without_channel_and_icon() {
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
+        .verifyComplete();
+    clearInvocations(restTemplate);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
 
-		Object expected = expectedMessage("good", user, null, null, standardMessage("UP"));
+    Object expected = expectedMessage("good", user, null, null, standardMessage("UP"));
 
-		verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
-	}
+    verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
+  }
 
-	@Test
-	public void test_onApplicationEvent_resolve_with_given_user() {
-		String anotherUser = "another user";
-		notifier.setUsername(anotherUser);
-		notifier.setChannel(channel);
-		notifier.setIcon(icon);
+  @Test
+  public void test_onApplicationEvent_resolve_with_given_user() {
+    String anotherUser = "another user";
+    notifier.setUsername(anotherUser);
+    notifier.setChannel(channel);
+    notifier.setIcon(icon);
 
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
-				.verifyComplete();
-		clearInvocations(restTemplate);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
+        .verifyComplete();
+    clearInvocations(restTemplate);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
 
-		Object expected = expectedMessage("good", anotherUser, icon, channel, standardMessage("UP"));
+    Object expected = expectedMessage("good", anotherUser, icon, channel, standardMessage("UP"));
 
-		verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
-	}
+    verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
+  }
 
-	@Test
-	public void test_onApplicationEvent_resolve_with_given_message() {
-		notifier.setMessage(message);
-		notifier.setChannel(channel);
-		notifier.setIcon(icon);
+  @Test
+  public void test_onApplicationEvent_resolve_with_given_message() {
+    notifier.setMessage(message);
+    notifier.setChannel(channel);
+    notifier.setIcon(icon);
 
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
-				.verifyComplete();
-		clearInvocations(restTemplate);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
+        .verifyComplete();
+    clearInvocations(restTemplate);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
 
-		Object expected = expectedMessage("good", user, icon, channel, message);
+    Object expected = expectedMessage("good", user, icon, channel, message);
 
-		verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
-	}
+    verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
+  }
 
-	@Test
-	public void test_onApplicationEvent_trigger() {
-		notifier.setChannel(channel);
-		notifier.setIcon(icon);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
-		clearInvocations(restTemplate);
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
-				.verifyComplete();
+  @Test
+  public void test_onApplicationEvent_trigger() {
+    notifier.setChannel(channel);
+    notifier.setIcon(icon);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
+    clearInvocations(restTemplate);
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion(), StatusInfo.ofDown())))
+        .verifyComplete();
 
-		Object expected = expectedMessage("danger", user, icon, channel, standardMessage("DOWN"));
+    Object expected = expectedMessage("danger", user, icon, channel, standardMessage("DOWN"));
 
-		verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
-	}
+    verify(restTemplate).postForEntity(any(URI.class), eq(expected), eq(Void.class));
+  }
 
-	private HttpEntity<Map<String, Object>> expectedMessage(String color, String user, String icon, String channel,
-			String message) {
-		Map<String, Object> messageJson = new HashMap<>();
-		messageJson.put("username", user);
-		if (icon != null) {
-			messageJson.put("icon_emoji", ":" + icon + ":");
-		}
-		if (channel != null) {
-			messageJson.put("channel", channel);
-		}
+  private HttpEntity<Map<String, Object>> expectedMessage(
+      String color, String user, String icon, String channel, String message) {
+    Map<String, Object> messageJson = new HashMap<>();
+    messageJson.put("username", user);
+    if (icon != null) {
+      messageJson.put("icon_emoji", ":" + icon + ":");
+    }
+    if (channel != null) {
+      messageJson.put("channel", channel);
+    }
 
-		Map<String, Object> attachments = new HashMap<>();
-		attachments.put("text", message);
-		attachments.put("color", color);
-		attachments.put("mrkdwn_in", Collections.singletonList("text"));
+    Map<String, Object> attachments = new HashMap<>();
+    attachments.put("text", message);
+    attachments.put("color", color);
+    attachments.put("mrkdwn_in", Collections.singletonList("text"));
 
-		messageJson.put("attachments", Collections.singletonList(attachments));
+    messageJson.put("attachments", Collections.singletonList(attachments));
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new HttpEntity<>(messageJson, headers);
-	}
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    return new HttpEntity<>(messageJson, headers);
+  }
 
-	private String standardMessage(String status) {
-		return "*" + INSTANCE.getRegistration().getName() + "* (" + INSTANCE.getId() + ") is *" + status + "*";
-	}
-
+  private String standardMessage(String status) {
+    return "*"
+        + INSTANCE.getRegistration().getName()
+        + "* ("
+        + INSTANCE.getId()
+        + ") is *"
+        + status
+        + "*";
+  }
 }

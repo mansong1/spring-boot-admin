@@ -16,18 +16,19 @@
 
 package de.codecentric.boot.admin.server.domain.values;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.junit.jupiter.api.Test;
 
 public class InstanceIdTest {
 
-	@Test
-	public void invariants() {
-		assertThatThrownBy(() -> InstanceId.of(null)).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("'value' must have text");
-		assertThatThrownBy(() -> InstanceId.of("")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("'value' must have text");
-	}
-
+  @Test
+  public void invariants() {
+    assertThatThrownBy(() -> InstanceId.of(null))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'value' must have text");
+    assertThatThrownBy(() -> InstanceId.of(""))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'value' must have text");
+  }
 }

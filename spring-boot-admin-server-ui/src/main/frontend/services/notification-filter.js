@@ -15,83 +15,81 @@
  */
 
 import sbaConfig from '@/sba-config'
-import axios from '@/utils/axios';
-import uri from '@/utils/uri';
-import moment from 'moment';
+import axios from '@/utils/axios'
+import uri from '@/utils/uri'
+import moment from 'moment'
 
 class NotificationFilter {
-  constructor({expiry, ...filter}) {
-    Object.assign(this, filter);
-    this.expiry = expiry ? moment(expiry) : null;
+  constructor ({ expiry, ...filter }) {
+    Object.assign(this, filter)
+    this.expiry = expiry ? moment(expiry) : null
   }
 
-  affects(obj) {
+  affects (obj) {
     if (!obj) {
-      return false;
+      return false
     }
 
     if (this.isApplicationFilter) {
-      return this.applicationName === obj.name;
+      return this.applicationName === obj.name
     }
 
     if (this.isInstanceFilter) {
-      return this.instanceId === obj.id;
+      return this.instanceId === obj.id
     }
 
-    return false;
+    return false
   }
 
-  get isApplicationFilter() {
-    return 'applicationName' in this;
+  get isApplicationFilter () {
+    return 'applicationName' in this
   }
 
-  get isInstanceFilter() {
-    return 'instanceId' in this;
+  get isInstanceFilter () {
+    return 'instanceId' in this
   }
 
-  async delete() {
-    return axios.delete(uri`notifications/filters/${this.id}`);
+  async delete () {
+    return axios.delete(uri`notifications/filters/${this.id}`)
   }
 
-  static isSupported() {
-    return Boolean(sbaConfig.uiSettings.notificationFilterEnabled);
+  static isSupported () {
+    return Boolean(sbaConfig.uiSettings.notificationFilterEnabled)
   }
 
-  static async getFilters() {
+  static async getFilters () {
     return axios.get('notifications/filters', {
       transformResponse: NotificationFilter._transformResponse
-    });
+    })
   }
 
-  static async addFilter(object, ttl) {
-    const params = {ttl};
+  static async addFilter (object, ttl) {
+    const params = { ttl }
     if ('name' in object) {
-      params.applicationName = object.name;
+      params.applicationName = object.name
     } else if ('id' in object) {
-      params.instanceId = object.id;
+      params.instanceId = object.id
     }
     return axios.post('notifications/filters', null, {
       params,
       transformResponse: NotificationFilter._transformResponse
-    });
+    })
   }
 
-  static _transformResponse(data) {
+  static _transformResponse (data) {
     if (!data) {
-      return data;
+      return data
     }
-    const json = JSON.parse(data);
+    const json = JSON.parse(data)
     if (json instanceof Array) {
-      return json.map(NotificationFilter._toNotificationFilters).filter(f => !f.expired);
+      return json.map(NotificationFilter._toNotificationFilters).filter(f => !f.expired)
     }
-    return NotificationFilter._toNotificationFilters(json);
+    return NotificationFilter._toNotificationFilters(json)
   }
 
-  static _toNotificationFilters(notificationFilter) {
-    return new NotificationFilter(notificationFilter);
+  static _toNotificationFilters (notificationFilter) {
+    return new NotificationFilter(notificationFilter)
   }
-
 }
 
-export default NotificationFilter;
-
+export default NotificationFilter

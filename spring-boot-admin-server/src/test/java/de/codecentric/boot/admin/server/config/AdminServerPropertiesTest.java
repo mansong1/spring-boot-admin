@@ -16,6 +16,8 @@
 
 package de.codecentric.boot.admin.server.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,26 +25,23 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 @ExtendWith(SpringExtension.class)
 @EnableConfigurationProperties(AdminServerProperties.class)
 @TestPropertySource("classpath:server-config-test.properties")
 public class AdminServerPropertiesTest {
 
-	@Autowired
-	private AdminServerProperties serverConfig;
+  @Autowired private AdminServerProperties serverConfig;
 
-	@Test
-	void testLoadConfigurationProperties() {
-		assertThat(serverConfig.getContextPath()).isEqualTo("/admin");
+  @Test
+  void testLoadConfigurationProperties() {
+    assertThat(serverConfig.getContextPath()).isEqualTo("/admin");
 
-		assertThat(serverConfig.getInstanceAuth().getDefaultUserName()).isEqualTo("admin");
-		assertThat(serverConfig.getInstanceAuth().getDefaultPassword()).isEqualTo("topsecret");
+    assertThat(serverConfig.getInstanceAuth().getDefaultUserName()).isEqualTo("admin");
+    assertThat(serverConfig.getInstanceAuth().getDefaultPassword()).isEqualTo("topsecret");
 
-		assertThat(serverConfig.getInstanceAuth().getServiceMap().get("my-service").getUserName()).isEqualTo("me");
-		assertThat(serverConfig.getInstanceAuth().getServiceMap().get("my-service").getUserPassword())
-				.isEqualTo("secret");
-	}
-
+    assertThat(serverConfig.getInstanceAuth().getServiceMap().get("my-service").getUserName())
+        .isEqualTo("me");
+    assertThat(serverConfig.getInstanceAuth().getServiceMap().get("my-service").getUserPassword())
+        .isEqualTo("secret");
+  }
 }

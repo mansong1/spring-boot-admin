@@ -16,36 +16,35 @@
 
 package de.codecentric.boot.admin.server.web.reactive;
 
+import de.codecentric.boot.admin.server.AdminReactiveApplicationTest;
+import de.codecentric.boot.admin.server.web.AbstractInstancesProxyControllerIntegrationTest;
 import javax.annotation.Nullable;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import de.codecentric.boot.admin.server.AdminReactiveApplicationTest;
-import de.codecentric.boot.admin.server.web.AbstractInstancesProxyControllerIntegrationTest;
+public class InstancesProxyControllerIntegrationTest
+    extends AbstractInstancesProxyControllerIntegrationTest {
 
-public class InstancesProxyControllerIntegrationTest extends AbstractInstancesProxyControllerIntegrationTest {
+  @Nullable private static ConfigurableApplicationContext context;
 
-	@Nullable
-	private static ConfigurableApplicationContext context;
+  @BeforeEach
+  public void setUpClient() {
+    context =
+        new SpringApplicationBuilder()
+            .sources(AdminReactiveApplicationTest.TestAdminApplication.class)
+            .web(WebApplicationType.REACTIVE)
+            .run("--server.port=0", "--spring.boot.admin.monitor.default-timeout=2500");
 
-	@BeforeEach
-	public void setUpClient() {
-		context = new SpringApplicationBuilder().sources(AdminReactiveApplicationTest.TestAdminApplication.class)
-				.web(WebApplicationType.REACTIVE)
-				.run("--server.port=0", "--spring.boot.admin.monitor.default-timeout=2500");
+    super.setUpClient(context);
+  }
 
-		super.setUpClient(context);
-	}
-
-	@AfterEach
-	public void tearDownContext() {
-		if (context != null) {
-			context.close();
-		}
-	}
-
+  @AfterEach
+  public void tearDownContext() {
+    if (context != null) {
+      context.close();
+    }
+  }
 }

@@ -20,17 +20,16 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class AbstractNotificationFilter implements NotificationFilter {
 
-	private static final AtomicLong instanceCounter = new AtomicLong(0L);
+  private static final AtomicLong instanceCounter = new AtomicLong(0L);
 
-	private final String id;
+  private final String id;
 
-	public AbstractNotificationFilter() {
-		this.id = "F-" + instanceCounter.getAndIncrement();
-	}
+  public AbstractNotificationFilter() {
+    this.id = "F-" + instanceCounter.getAndIncrement();
+  }
 
-	@Override
-	public String getId() {
-		return id;
-	}
-
+  @Override
+  public String getId() {
+    return id;
+  }
 }

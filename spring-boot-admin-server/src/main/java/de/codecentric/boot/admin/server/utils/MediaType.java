@@ -20,13 +20,12 @@ import org.springframework.boot.actuate.endpoint.http.ActuatorMediaType;
 
 public final class MediaType {
 
-	public static final org.springframework.http.MediaType ACTUATOR_V1_MEDIATYPE = org.springframework.http.MediaType
-			.parseMediaType("application/vnd.spring-boot.actuator.v1+json");
+  public static final org.springframework.http.MediaType ACTUATOR_V1_MEDIATYPE =
+      org.springframework.http.MediaType.parseMediaType(
+          "application/vnd.spring-boot.actuator.v1+json");
 
-	public static final org.springframework.http.MediaType ACTUATOR_V2_MEDIATYPE = org.springframework.http.MediaType
-			.parseMediaType(ActuatorMediaType.V2_JSON);
+  public static final org.springframework.http.MediaType ACTUATOR_V2_MEDIATYPE =
+      org.springframework.http.MediaType.parseMediaType(ActuatorMediaType.V2_JSON);
 
-	private MediaType() {
-	}
-
+  private MediaType() {}
 }

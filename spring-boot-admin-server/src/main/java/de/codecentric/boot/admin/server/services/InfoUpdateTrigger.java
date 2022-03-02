@@ -16,66 +16,72 @@
 
 package de.codecentric.boot.admin.server.services;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEndpointsDetectedEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceRegistrationUpdatedEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import java.time.Duration;
-
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceEndpointsDetectedEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceRegistrationUpdatedEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-
 public class InfoUpdateTrigger extends AbstractEventHandler<InstanceEvent> {
 
-	private static final Logger log = LoggerFactory.getLogger(InfoUpdateTrigger.class);
+  private static final Logger log = LoggerFactory.getLogger(InfoUpdateTrigger.class);
 
-	private final InfoUpdater infoUpdater;
+  private final InfoUpdater infoUpdater;
 
-	private final IntervalCheck intervalCheck;
+  private final IntervalCheck intervalCheck;
 
-	public InfoUpdateTrigger(InfoUpdater infoUpdater, Publisher<InstanceEvent> publisher) {
-		super(publisher, InstanceEvent.class);
-		this.infoUpdater = infoUpdater;
-		this.intervalCheck = new IntervalCheck("info", this::updateInfo, Duration.ofMinutes(5), Duration.ofMinutes(1));
-	}
+  public InfoUpdateTrigger(InfoUpdater infoUpdater, Publisher<InstanceEvent> publisher) {
+    super(publisher, InstanceEvent.class);
+    this.infoUpdater = infoUpdater;
+    this.intervalCheck =
+        new IntervalCheck("info", this::updateInfo, Duration.ofMinutes(5), Duration.ofMinutes(1));
+  }
 
-	@Override
-	protected Publisher<Void> handle(Flux<InstanceEvent> publisher) {
-		return publisher.filter((event) -> event instanceof InstanceEndpointsDetectedEvent
-				|| event instanceof InstanceStatusChangedEvent || event instanceof InstanceRegistrationUpdatedEvent)
-				.flatMap((event) -> this.updateInfo(event.getInstance()));
-	}
+  @Override
+  protected Publisher<Void> handle(Flux<InstanceEvent> publisher) {
+    return publisher
+        .filter(
+            (event) ->
+                event instanceof InstanceEndpointsDetectedEvent
+                    || event instanceof InstanceStatusChangedEvent
+                    || event instanceof InstanceRegistrationUpdatedEvent)
+        .flatMap((event) -> this.updateInfo(event.getInstance()));
+  }
 
-	protected Mono<Void> updateInfo(InstanceId instanceId) {
-		return this.infoUpdater.updateInfo(instanceId).onErrorResume((e) -> {
-			log.warn("Unexpected error while updating info for {}", instanceId, e);
-			return Mono.empty();
-		}).doFinally((s) -> this.intervalCheck.markAsChecked(instanceId));
-	}
+  protected Mono<Void> updateInfo(InstanceId instanceId) {
+    return this.infoUpdater
+        .updateInfo(instanceId)
+        .onErrorResume(
+            (e) -> {
+              log.warn("Unexpected error while updating info for {}", instanceId, e);
+              return Mono.empty();
+            })
+        .doFinally((s) -> this.intervalCheck.markAsChecked(instanceId));
+  }
 
-	@Override
-	public void start() {
-		super.start();
-		this.intervalCheck.start();
-	}
+  @Override
+  public void start() {
+    super.start();
+    this.intervalCheck.start();
+  }
 
-	@Override
-	public void stop() {
-		super.stop();
-		this.intervalCheck.stop();
-	}
+  @Override
+  public void stop() {
+    super.stop();
+    this.intervalCheck.stop();
+  }
 
-	public void setInterval(Duration updateInterval) {
-		this.intervalCheck.setInterval(updateInterval);
-	}
+  public void setInterval(Duration updateInterval) {
+    this.intervalCheck.setInterval(updateInterval);
+  }
 
-	public void setLifetime(Duration infoLifetime) {
-		this.intervalCheck.setMinRetention(infoLifetime);
-	}
-
+  public void setLifetime(Duration infoLifetime) {
+    this.intervalCheck.setMinRetention(infoLifetime);
+  }
 }

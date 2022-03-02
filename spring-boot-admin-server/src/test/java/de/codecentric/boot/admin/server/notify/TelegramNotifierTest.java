@@ -16,9 +16,21 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import de.codecentric.boot.admin.server.domain.entities.Instance;
+import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
+import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import de.codecentric.boot.admin.server.domain.values.Registration;
+import de.codecentric.boot.admin.server.domain.values.StatusInfo;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -28,101 +40,97 @@ import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import de.codecentric.boot.admin.server.domain.entities.Instance;
-import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
-import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-import de.codecentric.boot.admin.server.domain.values.Registration;
-import de.codecentric.boot.admin.server.domain.values.StatusInfo;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.clearInvocations;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class TelegramNotifierTest {
 
-	private final Instance instance = Instance.create(InstanceId.of("-id-"))
-			.register(Registration.create("Telegram", "http://health").build());
+  private final Instance instance =
+      Instance.create(InstanceId.of("-id-"))
+          .register(Registration.create("Telegram", "http://health").build());
 
-	private InstanceRepository repository;
+  private InstanceRepository repository;
 
-	private TelegramNotifier notifier;
+  private TelegramNotifier notifier;
 
-	private RestTemplate restTemplate;
+  private RestTemplate restTemplate;
 
-	@BeforeEach
-	public void setUp() {
-		repository = mock(InstanceRepository.class);
-		when(repository.find(instance.getId())).thenReturn(Mono.just(instance));
+  @BeforeEach
+  public void setUp() {
+    repository = mock(InstanceRepository.class);
+    when(repository.find(instance.getId())).thenReturn(Mono.just(instance));
 
-		restTemplate = mock(RestTemplate.class);
-		notifier = new TelegramNotifier(repository, restTemplate);
-		notifier.setDisableNotify(false);
-		notifier.setAuthToken("--token-");
-		notifier.setChatId("-room-");
-		notifier.setParseMode("HTML");
-		notifier.setApiUrl("https://telegram.com");
-	}
+    restTemplate = mock(RestTemplate.class);
+    notifier = new TelegramNotifier(repository, restTemplate);
+    notifier.setDisableNotify(false);
+    notifier.setAuthToken("--token-");
+    notifier.setChatId("-room-");
+    notifier.setParseMode("HTML");
+    notifier.setApiUrl("https://telegram.com");
+  }
 
-	@Test
-	public void test_onApplicationEvent_resolve() {
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(instance.getId(), instance.getVersion(), StatusInfo.ofDown())))
-				.verifyComplete();
-		clearInvocations(restTemplate);
+  @Test
+  public void test_onApplicationEvent_resolve() {
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    instance.getId(), instance.getVersion(), StatusInfo.ofDown())))
+        .verifyComplete();
+    clearInvocations(restTemplate);
 
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(instance.getId(), instance.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    instance.getId(), instance.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
 
-		verify(restTemplate).getForObject(
-				eq("https://telegram.com/bot--token-/sendmessage?chat_id={chat_id}&text={text}"
-						+ "&parse_mode={parse_mode}&disable_notification={disable_notification}"),
-				eq(Void.class), eq(getParameters("UP")));
-	}
+    verify(restTemplate)
+        .getForObject(
+            eq(
+                "https://telegram.com/bot--token-/sendmessage?chat_id={chat_id}&text={text}"
+                    + "&parse_mode={parse_mode}&disable_notification={disable_notification}"),
+            eq(Void.class),
+            eq(getParameters("UP")));
+  }
 
-	@Test
-	public void test_onApplicationEvent_trigger() {
-		StatusInfo infoDown = StatusInfo.ofDown();
+  @Test
+  public void test_onApplicationEvent_trigger() {
+    StatusInfo infoDown = StatusInfo.ofDown();
 
-		@SuppressWarnings("unchecked")
-		ArgumentCaptor<HttpEntity<Map<String, Object>>> httpRequest = ArgumentCaptor
-				.forClass((Class<HttpEntity<Map<String, Object>>>) (Class<?>) HttpEntity.class);
+    @SuppressWarnings("unchecked")
+    ArgumentCaptor<HttpEntity<Map<String, Object>>> httpRequest =
+        ArgumentCaptor.forClass(
+            (Class<HttpEntity<Map<String, Object>>>) (Class<?>) HttpEntity.class);
 
-		when(restTemplate.postForEntity(isA(String.class), httpRequest.capture(), eq(Void.class)))
-				.thenReturn(ResponseEntity.ok().build());
+    when(restTemplate.postForEntity(isA(String.class), httpRequest.capture(), eq(Void.class)))
+        .thenReturn(ResponseEntity.ok().build());
 
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(instance.getId(), instance.getVersion(), StatusInfo.ofUp())))
-				.verifyComplete();
-		StepVerifier
-				.create(notifier
-						.notify(new InstanceStatusChangedEvent(instance.getId(), instance.getVersion(), infoDown)))
-				.verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    instance.getId(), instance.getVersion(), StatusInfo.ofUp())))
+        .verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(instance.getId(), instance.getVersion(), infoDown)))
+        .verifyComplete();
 
-		verify(restTemplate).getForObject(
-				eq("https://telegram.com/bot--token-/sendmessage?chat_id={chat_id}&text={text}"
-						+ "&parse_mode={parse_mode}&disable_notification={disable_notification}"),
-				eq(Void.class), eq(getParameters("DOWN")));
-	}
+    verify(restTemplate)
+        .getForObject(
+            eq(
+                "https://telegram.com/bot--token-/sendmessage?chat_id={chat_id}&text={text}"
+                    + "&parse_mode={parse_mode}&disable_notification={disable_notification}"),
+            eq(Void.class),
+            eq(getParameters("DOWN")));
+  }
 
-	private Map<String, Object> getParameters(String status) {
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("chat_id", "-room-");
-		parameters.put("text", getMessage("Telegram", "-id-", status));
-		parameters.put("parse_mode", "HTML");
-		parameters.put("disable_notification", false);
-		return parameters;
-	}
+  private Map<String, Object> getParameters(String status) {
+    Map<String, Object> parameters = new HashMap<>();
+    parameters.put("chat_id", "-room-");
+    parameters.put("text", getMessage("Telegram", "-id-", status));
+    parameters.put("parse_mode", "HTML");
+    parameters.put("disable_notification", false);
+    return parameters;
+  }
 
-	private String getMessage(String name, String id, String status) {
-		return "<strong>" + name + "</strong>/" + id + " is <strong>" + status + "</strong>";
-	}
-
+  private String getMessage(String name, String id, String status) {
+    return "<strong>" + name + "</strong>/" + id + " is <strong>" + status + "</strong>";
+  }
 }

@@ -17,7 +17,7 @@
 package de.codecentric.boot.admin.client.config;
 
 public enum ServiceHostType {
-
-	IP, HOST_NAME, CANONICAL_HOST_NAME,
-
+  IP,
+  HOST_NAME,
+  CANONICAL_HOST_NAME,
 }

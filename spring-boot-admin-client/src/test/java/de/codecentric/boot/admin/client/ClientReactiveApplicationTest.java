@@ -24,34 +24,36 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 public class ClientReactiveApplicationTest extends AbstractClientApplicationTest {
 
-	private ConfigurableApplicationContext instance;
+  private ConfigurableApplicationContext instance;
 
-	@BeforeEach
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
+  @BeforeEach
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
 
-		SpringApplication application = new SpringApplication(TestClientApplication.class);
-		application.setWebApplicationType(WebApplicationType.REACTIVE);
-		instance = application.run("--spring.application.name=Test-Client", "--server.port=0",
-				"--management.endpoints.web.base-path=/mgmt", "--endpoints.health.enabled=true",
-				"--spring.boot.admin.client.url=" + wireMock.url("/"));
-	}
+    SpringApplication application = new SpringApplication(TestClientApplication.class);
+    application.setWebApplicationType(WebApplicationType.REACTIVE);
+    instance =
+        application.run(
+            "--spring.application.name=Test-Client",
+            "--server.port=0",
+            "--management.endpoints.web.base-path=/mgmt",
+            "--endpoints.health.enabled=true",
+            "--spring.boot.admin.client.url=" + wireMock.url("/"));
+  }
 
-	@AfterEach
-	public void shutdown() {
-		instance.close();
-	}
+  @AfterEach
+  public void shutdown() {
+    instance.close();
+  }
 
-	@Override
-	protected int getServerPort() {
-		return instance.getEnvironment().getProperty("local.server.port", Integer.class, 0);
-	}
+  @Override
+  protected int getServerPort() {
+    return instance.getEnvironment().getProperty("local.server.port", Integer.class, 0);
+  }
 
-	@Override
-	protected int getManagementPort() {
-		return instance.getEnvironment().getProperty("local.management.port", Integer.class, 0);
-
-	}
-
+  @Override
+  protected int getManagementPort() {
+    return instance.getEnvironment().getProperty("local.management.port", Integer.class, 0);
+  }
 }

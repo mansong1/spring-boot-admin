@@ -16,26 +16,28 @@
 
 package de.codecentric.boot.admin.server.domain.values;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class InfoTest {
 
-	@Test
-	public void should_keep_order() {
-		Map<String, Object> map = new LinkedHashMap<>();
-		map.put("z", "1");
-		map.put("x", "2");
+  @Test
+  public void should_keep_order() {
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("z", "1");
+    map.put("x", "2");
 
-		Iterator<?> iter = Info.from(map).getValues().entrySet().iterator();
+    Iterator<?> iter = Info.from(map).getValues().entrySet().iterator();
 
-		assertThat(iter.next()).hasFieldOrPropertyWithValue("key", "z").hasFieldOrPropertyWithValue("value", "1");
-		assertThat(iter.next()).hasFieldOrPropertyWithValue("key", "x").hasFieldOrPropertyWithValue("value", "2");
-	}
-
+    assertThat(iter.next())
+        .hasFieldOrPropertyWithValue("key", "z")
+        .hasFieldOrPropertyWithValue("value", "1");
+    assertThat(iter.next())
+        .hasFieldOrPropertyWithValue("key", "x")
+        .hasFieldOrPropertyWithValue("value", "2");
+  }
 }

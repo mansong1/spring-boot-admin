@@ -16,18 +16,19 @@
 
 package de.codecentric.boot.admin.server.domain.values;
 
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import org.junit.jupiter.api.Test;
 
 public class EndpointTest {
 
-	@Test
-	public void invariants() {
-		assertThatThrownBy(() -> Endpoint.of("", "")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("'id' must not be empty.");
-		assertThatThrownBy(() -> Endpoint.of("id", "")).isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("'url' must not be empty.");
-	}
-
+  @Test
+  public void invariants() {
+    assertThatThrownBy(() -> Endpoint.of("", ""))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'id' must not be empty.");
+    assertThatThrownBy(() -> Endpoint.of("id", ""))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("'url' must not be empty.");
+  }
 }

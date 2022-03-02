@@ -16,10 +16,9 @@
 
 package de.codecentric.boot.admin.server.domain.events;
 
-import java.time.Instant;
-
 import de.codecentric.boot.admin.server.domain.values.Info;
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import java.time.Instant;
 
 /**
  * This event gets emitted when an instance information changes.
@@ -31,19 +30,18 @@ import de.codecentric.boot.admin.server.domain.values.InstanceId;
 @lombok.ToString(callSuper = true)
 public class InstanceInfoChangedEvent extends InstanceEvent {
 
-	public static final String TYPE = "INFO_CHANGED";
+  public static final String TYPE = "INFO_CHANGED";
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private final Info info;
+  private final Info info;
 
-	public InstanceInfoChangedEvent(InstanceId instance, long version, Info info) {
-		this(instance, version, Instant.now(), info);
-	}
+  public InstanceInfoChangedEvent(InstanceId instance, long version, Info info) {
+    this(instance, version, Instant.now(), info);
+  }
 
-	public InstanceInfoChangedEvent(InstanceId instance, long version, Instant timestamp, Info info) {
-		super(instance, version, TYPE, timestamp);
-		this.info = info;
-	}
-
+  public InstanceInfoChangedEvent(InstanceId instance, long version, Instant timestamp, Info info) {
+    super(instance, version, TYPE, timestamp);
+    this.info = info;
+  }
 }

@@ -16,14 +16,12 @@
 
 package de.codecentric.boot.admin.server.eventstore;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import java.util.List;
-
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
 
 /**
  * Interface for storing all instance related Events
@@ -32,10 +30,9 @@ import de.codecentric.boot.admin.server.domain.values.InstanceId;
  */
 public interface InstanceEventStore extends Publisher<InstanceEvent> {
 
-	Flux<InstanceEvent> findAll();
+  Flux<InstanceEvent> findAll();
 
-	Flux<InstanceEvent> find(InstanceId id);
+  Flux<InstanceEvent> find(InstanceId id);
 
-	Mono<Void> append(List<InstanceEvent> events);
-
+  Mono<Void> append(List<InstanceEvent> events);
 }

@@ -1,12 +1,12 @@
-import SbaPanel from './sba-panel';
+import SbaPanel from './sba-panel'
 
 export default {
   component: SbaPanel,
-  title: 'SBA Components/Panel',
-};
+  title: 'SBA Components/Panel'
+}
 
-const Template = (args, {argTypes}) => ({
-  components: {SbaPanel},
+const Template = (args, { argTypes }) => ({
+  components: { SbaPanel },
   props: Object.keys(argTypes),
   template: `
     <sba-panel v-bind="$props">
@@ -28,23 +28,23 @@ const Template = (args, {argTypes}) => ({
       erat a rutrum. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Donec
       semper erat nec ipsum molestie, eu commodo dui lobortis.</p>
     </sba-panel>
-  `,
-});
+  `
+})
 
-export const WithTitle = Template.bind({});
+export const WithTitle = Template.bind({})
 WithTitle.args = {
   title: 'Titel'
-};
+}
 
-export const Closable = Template.bind({});
+export const Closable = Template.bind({})
 Closable.args = {
   ...WithTitle.args,
   closeable: true
-};
+}
 
-export const StickyHeader = Template.bind({});
+export const StickyHeader = Template.bind({})
 StickyHeader.args = {
   ...WithTitle.args,
   closeable: true,
   headerSticksBelow: ['.os-content']
-};
+}

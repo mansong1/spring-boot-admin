@@ -16,9 +16,14 @@
 
 package de.codecentric.boot.admin.server.web.reactive;
 
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import de.codecentric.boot.admin.server.services.InstanceRegistry;
+import de.codecentric.boot.admin.server.web.AdminController;
+import de.codecentric.boot.admin.server.web.HttpHeaderFilter;
+import de.codecentric.boot.admin.server.web.InstanceWebProxy;
+import de.codecentric.boot.admin.server.web.client.InstanceWebClient;
 import java.net.URI;
 import java.util.Set;
-
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -37,91 +42,123 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-import de.codecentric.boot.admin.server.services.InstanceRegistry;
-import de.codecentric.boot.admin.server.web.AdminController;
-import de.codecentric.boot.admin.server.web.HttpHeaderFilter;
-import de.codecentric.boot.admin.server.web.InstanceWebProxy;
-import de.codecentric.boot.admin.server.web.client.InstanceWebClient;
-
-/**
- * Http Handler for proxied requests
- */
+/** Http Handler for proxied requests */
 @AdminController
 public class InstancesProxyController {
 
-	private static final String INSTANCE_MAPPED_PATH = "/instances/{instanceId}/actuator/**";
+  private static final String INSTANCE_MAPPED_PATH = "/instances/{instanceId}/actuator/**";
 
-	private static final String APPLICATION_MAPPED_PATH = "/applications/{applicationName}/actuator/**";
+  private static final String APPLICATION_MAPPED_PATH =
+      "/applications/{applicationName}/actuator/**";
 
-	private final PathMatcher pathMatcher = new AntPathMatcher();
+  private final PathMatcher pathMatcher = new AntPathMatcher();
 
-	private final DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+  private final DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
 
-	private final InstanceRegistry registry;
+  private final InstanceRegistry registry;
 
-	private final InstanceWebProxy instanceWebProxy;
+  private final InstanceWebProxy instanceWebProxy;
 
-	private final String adminContextPath;
+  private final String adminContextPath;
 
-	private final HttpHeaderFilter httpHeadersFilter;
+  private final HttpHeaderFilter httpHeadersFilter;
 
-	public InstancesProxyController(String adminContextPath, Set<String> ignoredHeaders, InstanceRegistry registry,
-			InstanceWebClient instanceWebClient) {
-		this.adminContextPath = adminContextPath;
-		this.registry = registry;
-		this.httpHeadersFilter = new HttpHeaderFilter(ignoredHeaders);
-		this.instanceWebProxy = new InstanceWebProxy(instanceWebClient);
-	}
+  public InstancesProxyController(
+      String adminContextPath,
+      Set<String> ignoredHeaders,
+      InstanceRegistry registry,
+      InstanceWebClient instanceWebClient) {
+    this.adminContextPath = adminContextPath;
+    this.registry = registry;
+    this.httpHeadersFilter = new HttpHeaderFilter(ignoredHeaders);
+    this.instanceWebProxy = new InstanceWebProxy(instanceWebClient);
+  }
 
-	@RequestMapping(path = INSTANCE_MAPPED_PATH, method = { RequestMethod.GET, RequestMethod.HEAD, RequestMethod.POST,
-			RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS })
-	public Mono<Void> endpointProxy(@PathVariable("instanceId") String instanceId, ServerHttpRequest request,
-			ServerHttpResponse response) {
-		InstanceWebProxy.ForwardRequest fwdRequest = createForwardRequest(request, request.getBody(),
-				this.adminContextPath + INSTANCE_MAPPED_PATH);
+  @RequestMapping(
+      path = INSTANCE_MAPPED_PATH,
+      method = {
+        RequestMethod.GET,
+        RequestMethod.HEAD,
+        RequestMethod.POST,
+        RequestMethod.PUT,
+        RequestMethod.PATCH,
+        RequestMethod.DELETE,
+        RequestMethod.OPTIONS
+      })
+  public Mono<Void> endpointProxy(
+      @PathVariable("instanceId") String instanceId,
+      ServerHttpRequest request,
+      ServerHttpResponse response) {
+    InstanceWebProxy.ForwardRequest fwdRequest =
+        createForwardRequest(
+            request, request.getBody(), this.adminContextPath + INSTANCE_MAPPED_PATH);
 
-		return this.instanceWebProxy.forward(this.registry.getInstance(InstanceId.of(instanceId)), fwdRequest,
-				(clientResponse) -> {
-					response.setStatusCode(clientResponse.statusCode());
-					response.getHeaders()
-							.addAll(this.httpHeadersFilter.filterHeaders(clientResponse.headers().asHttpHeaders()));
-					return response.writeAndFlushWith(clientResponse.body(BodyExtractors.toDataBuffers()).window(1));
-				});
-	}
+    return this.instanceWebProxy.forward(
+        this.registry.getInstance(InstanceId.of(instanceId)),
+        fwdRequest,
+        (clientResponse) -> {
+          response.setStatusCode(clientResponse.statusCode());
+          response
+              .getHeaders()
+              .addAll(
+                  this.httpHeadersFilter.filterHeaders(clientResponse.headers().asHttpHeaders()));
+          return response.writeAndFlushWith(
+              clientResponse.body(BodyExtractors.toDataBuffers()).window(1));
+        });
+  }
 
-	@ResponseBody
-	@RequestMapping(path = APPLICATION_MAPPED_PATH, method = { RequestMethod.GET, RequestMethod.HEAD,
-			RequestMethod.POST, RequestMethod.PUT, RequestMethod.PATCH, RequestMethod.DELETE, RequestMethod.OPTIONS })
-	public Flux<InstanceWebProxy.InstanceResponse> endpointProxy(
-			@PathVariable("applicationName") String applicationName, ServerHttpRequest request) {
+  @ResponseBody
+  @RequestMapping(
+      path = APPLICATION_MAPPED_PATH,
+      method = {
+        RequestMethod.GET,
+        RequestMethod.HEAD,
+        RequestMethod.POST,
+        RequestMethod.PUT,
+        RequestMethod.PATCH,
+        RequestMethod.DELETE,
+        RequestMethod.OPTIONS
+      })
+  public Flux<InstanceWebProxy.InstanceResponse> endpointProxy(
+      @PathVariable("applicationName") String applicationName, ServerHttpRequest request) {
 
-		Flux<DataBuffer> cachedBody = request.getBody().map((b) -> {
-			int readableByteCount = b.readableByteCount();
-			DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(readableByteCount);
-			dataBuffer.write(b.asByteBuffer());
-			DataBufferUtils.release(b);
-			return dataBuffer;
-		}).cache();
+    Flux<DataBuffer> cachedBody =
+        request
+            .getBody()
+            .map(
+                (b) -> {
+                  int readableByteCount = b.readableByteCount();
+                  DataBuffer dataBuffer = this.bufferFactory.allocateBuffer(readableByteCount);
+                  dataBuffer.write(b.asByteBuffer());
+                  DataBufferUtils.release(b);
+                  return dataBuffer;
+                })
+            .cache();
 
-		InstanceWebProxy.ForwardRequest fwdRequest = createForwardRequest(request, cachedBody,
-				this.adminContextPath + APPLICATION_MAPPED_PATH);
+    InstanceWebProxy.ForwardRequest fwdRequest =
+        createForwardRequest(request, cachedBody, this.adminContextPath + APPLICATION_MAPPED_PATH);
 
-		return this.instanceWebProxy.forward(this.registry.getInstances(applicationName), fwdRequest);
-	}
+    return this.instanceWebProxy.forward(this.registry.getInstances(applicationName), fwdRequest);
+  }
 
-	private InstanceWebProxy.ForwardRequest createForwardRequest(ServerHttpRequest request, Flux<DataBuffer> cachedBody,
-			String pathPattern) {
-		String localPath = this.getLocalPath(pathPattern, request);
-		URI uri = UriComponentsBuilder.fromPath(localPath).query(request.getURI().getRawQuery()).build(true).toUri();
-		return InstanceWebProxy.ForwardRequest.builder().uri(uri).method(request.getMethod())
-				.headers(this.httpHeadersFilter.filterHeaders(request.getHeaders()))
-				.body(BodyInserters.fromDataBuffers(cachedBody)).build();
-	}
+  private InstanceWebProxy.ForwardRequest createForwardRequest(
+      ServerHttpRequest request, Flux<DataBuffer> cachedBody, String pathPattern) {
+    String localPath = this.getLocalPath(pathPattern, request);
+    URI uri =
+        UriComponentsBuilder.fromPath(localPath)
+            .query(request.getURI().getRawQuery())
+            .build(true)
+            .toUri();
+    return InstanceWebProxy.ForwardRequest.builder()
+        .uri(uri)
+        .method(request.getMethod())
+        .headers(this.httpHeadersFilter.filterHeaders(request.getHeaders()))
+        .body(BodyInserters.fromDataBuffers(cachedBody))
+        .build();
+  }
 
-	private String getLocalPath(String pathPattern, ServerHttpRequest request) {
-		String pathWithinApplication = request.getPath().pathWithinApplication().value();
-		return this.pathMatcher.extractPathWithinPattern(pathPattern, pathWithinApplication);
-	}
-
+  private String getLocalPath(String pathPattern, ServerHttpRequest request) {
+    String pathWithinApplication = request.getPath().pathWithinApplication().value();
+    return this.pathMatcher.extractPathWithinPattern(pathPattern, pathWithinApplication);
+  }
 }

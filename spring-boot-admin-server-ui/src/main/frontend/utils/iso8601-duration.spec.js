@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-
-import {toMilliseconds} from '@/utils/iso8601-duration';
-import each from 'jest-each';
-
+import { toMilliseconds } from '@/utils/iso8601-duration'
+import each from 'jest-each'
 
 describe('iso8601-duration', () => {
-
-
   each([
     [1.023, 0, 0, 0, 0, 1_023],
     [1.023, 1, 1, 0, 0, 3_661_023],
     [1.023, 1, 1, 1, 0, 90_061_023],
-    [1.023, 1, 1, 1, 1, 694_861_023],
+    [1.023, 1, 1, 1, 1, 694_861_023]
   ]).it('should return the miliseconds of a duration object with %n seconds, %n minutes, %n hours, %n days, %n weeks', (
     seconds, minutes, hours, days, weeks, expected
   ) => {
@@ -38,9 +34,8 @@ describe('iso8601-duration', () => {
       weeks
     }
 
-    const milliseconds = toMilliseconds(duration);
+    const milliseconds = toMilliseconds(duration)
 
     expect(milliseconds).toBeCloseTo(expected)
   })
-
 })

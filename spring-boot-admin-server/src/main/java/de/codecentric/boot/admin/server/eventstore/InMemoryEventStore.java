@@ -16,12 +16,10 @@
 
 package de.codecentric.boot.admin.server.eventstore;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
 import reactor.core.publisher.Mono;
-
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 
 /**
  * Event-Store backed by a ConcurrentHashMap.
@@ -30,17 +28,16 @@ import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
  */
 public class InMemoryEventStore extends ConcurrentMapEventStore {
 
-	public InMemoryEventStore() {
-		this(100);
-	}
+  public InMemoryEventStore() {
+    this(100);
+  }
 
-	public InMemoryEventStore(int maxLogSizePerAggregate) {
-		super(maxLogSizePerAggregate, new ConcurrentHashMap<>());
-	}
+  public InMemoryEventStore(int maxLogSizePerAggregate) {
+    super(maxLogSizePerAggregate, new ConcurrentHashMap<>());
+  }
 
-	@Override
-	public Mono<Void> append(List<InstanceEvent> events) {
-		return super.append(events).then(Mono.fromRunnable(() -> this.publish(events)));
-	}
-
+  @Override
+  public Mono<Void> append(List<InstanceEvent> events) {
+    return super.append(events).then(Mono.fromRunnable(() -> this.publish(events)));
+  }
 }

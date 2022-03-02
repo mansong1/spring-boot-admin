@@ -15,24 +15,24 @@
  */
 
 export default {
-  created() {
-    this.subscribe();
+  created () {
+    this.subscribe()
   },
-  beforeDestroy() {
-    this.unsubscribe();
+  beforeDestroy () {
+    this.unsubscribe()
   },
   methods: {
-    async subscribe() {
+    async subscribe () {
       if (!this.subscription) {
-        this.subscription = await this.createSubscription();
+        this.subscription = await this.createSubscription()
       }
     },
-    unsubscribe() {
+    unsubscribe () {
       if (this.subscription) {
         try {
-          !this.subscription.closed && this.subscription.unsubscribe();
+          !this.subscription.closed && this.subscription.unsubscribe()
         } finally {
-          this.subscription = null;
+          this.subscription = null
         }
       }
     }

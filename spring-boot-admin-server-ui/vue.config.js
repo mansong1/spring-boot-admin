@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-const {resolve} = require('path');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const CopyPlugin = require('copy-webpack-plugin');
+const { resolve } = require('path')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const CopyPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   publicPath: './',
@@ -28,7 +28,7 @@ module.exports = {
       template: './src/main/frontend/index.html',
       filename: 'index.html'
     },
-    'login': {
+    login: {
       entry: './src/main/frontend/login.js',
       template: './src/main/frontend/login.html',
       filename: 'login.html'
@@ -36,11 +36,11 @@ module.exports = {
   },
   chainWebpack: config => {
     if (process.env.NODE_ENV === 'development') {
-      //Fix different paths for watch-mode
-      config.output.filename('assets/js/[name].js');
-      config.output.chunkFilename('assets/js/[name].js');
+      // Fix different paths for watch-mode
+      config.output.filename('assets/js/[name].js')
+      config.output.chunkFilename('assets/js/[name].js')
     }
-    config.resolve.alias.set('@', resolve(__dirname, 'src/main/frontend'));
+    config.resolve.alias.set('@', resolve(__dirname, 'src/main/frontend'))
     config.module.rule('html')
       .test(/\.html$/)
       .use('html-loader')
@@ -51,27 +51,27 @@ module.exports = {
           root: resolve(__dirname, 'src/main/frontend')
         }
       })
-      .end();
+      .end()
     config.plugin('prefetch-sba-core')
       .tap(args => {
-        args[0].fileBlacklist = [/\.map$/, /event-source-polyfill\.?[a-z0-9]*\.js/];
-        return args;
-      });
+        args[0].fileBlacklist = [/\.map$/, /event-source-polyfill\.?[a-z0-9]*\.js/]
+        return args
+      })
     config.plugin('preload-login')
       .tap(args => {
-        args[0].include.entries = [];
-        return args;
-      });
+        args[0].include.entries = []
+        return args
+      })
     config.plugin('prefetch-login')
       .tap(args => {
-        args[0].include.entries = [];
-        return args;
-      });
+        args[0].include.entries = []
+        return args
+      })
     config.plugin('define')
       .tap(args => {
-        args[0]['__PROJECT_VERSION__'] = `'${process.env.PROJECT_VERSION || ''}'`;
-        return args;
-      });
+        args[0].__PROJECT_VERSION__ = `'${process.env.PROJECT_VERSION || ''}'`
+        return args
+      })
   },
   configureWebpack: {
     plugins: [
@@ -83,7 +83,7 @@ module.exports = {
       }]),
       new CopyPlugin([{
         from: resolve(__dirname, 'src/main/frontend/sba-settings.js'),
-        to: resolve(__dirname, 'target/dist/sba-settings.js'),
+        to: resolve(__dirname, 'target/dist/sba-settings.js')
       }]),
       new BundleAnalyzerPlugin({
         analyzerMode: 'static',
@@ -92,4 +92,4 @@ module.exports = {
       })
     ]
   }
-};
+}

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {render} from '@/test-utils';
-import SbaPaginationNav from '@/components/sba-pagination-nav';
-import {screen} from '@testing-library/vue';
+import { render } from '@/test-utils'
+import SbaPaginationNav from '@/components/sba-pagination-nav'
+import { screen } from '@testing-library/vue'
 
 describe('sba-pagination-nav.vue', () => {
   it('should show a button when page count is 0', async () => {
@@ -24,30 +24,30 @@ describe('sba-pagination-nav.vue', () => {
       props: {
         pageCount: 0
       }
-    });
+    })
 
-    const prevPage = screen.getByLabelText('Go to previous page');
-    expect(prevPage).toBeDisabled();
+    const prevPage = screen.getByLabelText('Go to previous page')
+    expect(prevPage).toBeDisabled()
 
-    const nextPage = screen.getByLabelText('Go to next page');
-    expect(nextPage).toBeDisabled();
-  });
+    const nextPage = screen.getByLabelText('Go to next page')
+    expect(nextPage).toBeDisabled()
+  })
 
   it('should show a button when page count is 1', async () => {
     await render(SbaPaginationNav, {
       props: {
         pageCount: 1
       }
-    });
+    })
 
-    const prevPage = screen.getByLabelText('Go to previous page');
-    expect(prevPage).toBeDisabled();
+    const prevPage = screen.getByLabelText('Go to previous page')
+    expect(prevPage).toBeDisabled()
 
-    const nextPage = screen.getByLabelText('Go to next page');
-    expect(nextPage).toBeDisabled();
+    const nextPage = screen.getByLabelText('Go to next page')
+    expect(nextPage).toBeDisabled()
 
-    screen.getByLabelText('Go to page 1');
-  });
+    screen.getByLabelText('Go to page 1')
+  })
 
   it('should show first and last page when page count is 12 including intermediate pages', async () => {
     await render(SbaPaginationNav, {
@@ -55,24 +55,24 @@ describe('sba-pagination-nav.vue', () => {
         pageCount: 11,
         current: 6
       }
-    });
+    })
 
-    expect(screen.queryByLabelText('Go to previous page')).not.toBeDisabled();
+    expect(screen.queryByLabelText('Go to previous page')).not.toBeDisabled()
 
-    expect(screen.queryByLabelText('Go to page 1')).toBeVisible();
-    expect(screen.queryByLabelText('Go to page 2')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Go to page 3')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Go to page 4')).toBeVisible();
-    expect(screen.queryByLabelText('Go to page 5')).toBeVisible();
-    const selectedButton = screen.queryByLabelText('Go to page 6');
-    expect(selectedButton).toBeVisible();
-    expect(selectedButton).toHaveClass('is-active');
-    expect(screen.queryByLabelText('Go to page 7')).toBeVisible();
-    expect(screen.queryByLabelText('Go to page 8')).toBeVisible();
-    expect(screen.queryByLabelText('Go to page 9')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Go to page 10')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Go to page 11')).toBeVisible();
+    expect(screen.queryByLabelText('Go to page 1')).toBeVisible()
+    expect(screen.queryByLabelText('Go to page 2')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Go to page 3')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Go to page 4')).toBeVisible()
+    expect(screen.queryByLabelText('Go to page 5')).toBeVisible()
+    const selectedButton = screen.queryByLabelText('Go to page 6')
+    expect(selectedButton).toBeVisible()
+    expect(selectedButton).toHaveClass('is-active')
+    expect(screen.queryByLabelText('Go to page 7')).toBeVisible()
+    expect(screen.queryByLabelText('Go to page 8')).toBeVisible()
+    expect(screen.queryByLabelText('Go to page 9')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Go to page 10')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Go to page 11')).toBeVisible()
 
-    expect(screen.queryByLabelText('Go to next page')).not.toBeDisabled();
-  });
-});
+    expect(screen.queryByLabelText('Go to next page')).not.toBeDisabled()
+  })
+})

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import {render} from '@/test-utils';
-import SbaActionButtonScoped from './sba-action-button-scoped';
-import userEvent from '@testing-library/user-event';
-import {screen} from '@testing-library/vue';
+import { render } from '@/test-utils'
+import SbaActionButtonScoped from './sba-action-button-scoped'
+import userEvent from '@testing-library/user-event'
+import { screen } from '@testing-library/vue'
 
 describe('SbaActionButtonScoped', function () {
-  let actionFn = jest.fn().mockResolvedValue([]);
+  const actionFn = jest.fn().mockResolvedValue([])
 
   beforeEach(() => {
     render(SbaActionButtonScoped, {
@@ -33,9 +33,9 @@ describe('SbaActionButtonScoped', function () {
   })
 
   it('should cal actionFn when confirmed', async () => {
-    userEvent.click(await screen.findByRole('button', {name: 'Execute'}));
-    userEvent.click(await screen.findByRole('button', {name: 'Confirm'}));
+    userEvent.click(await screen.findByRole('button', { name: 'Execute' }))
+    userEvent.click(await screen.findByRole('button', { name: 'Confirm' }))
 
-    expect(actionFn).toHaveBeenCalledTimes(1);
-  });
-});
+    expect(actionFn).toHaveBeenCalledTimes(1)
+  })
+})

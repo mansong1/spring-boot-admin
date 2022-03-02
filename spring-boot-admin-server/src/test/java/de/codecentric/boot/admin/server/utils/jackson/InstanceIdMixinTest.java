@@ -16,41 +16,39 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.io.IOException;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import java.io.IOException;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class InstanceIdMixinTest {
 
-	private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-	public InstanceIdMixinTest() {
-		AdminServerModule adminServerModule = new AdminServerModule(new String[] { ".*password$" });
-		JavaTimeModule javaTimeModule = new JavaTimeModule();
-		objectMapper = Jackson2ObjectMapperBuilder.json().modules(adminServerModule, javaTimeModule).build();
-	}
+  public InstanceIdMixinTest() {
+    AdminServerModule adminServerModule = new AdminServerModule(new String[] {".*password$"});
+    JavaTimeModule javaTimeModule = new JavaTimeModule();
+    objectMapper =
+        Jackson2ObjectMapperBuilder.json().modules(adminServerModule, javaTimeModule).build();
+  }
 
-	@Test
-	public void verifyDeserialize() throws JSONException, JsonProcessingException {
-		InstanceId id = objectMapper.readValue("\"abc\"", InstanceId.class);
-		assertThat(id).isEqualTo(InstanceId.of("abc"));
-	}
+  @Test
+  public void verifyDeserialize() throws JSONException, JsonProcessingException {
+    InstanceId id = objectMapper.readValue("\"abc\"", InstanceId.class);
+    assertThat(id).isEqualTo(InstanceId.of("abc"));
+  }
 
-	@Test
-	public void verifySerialize() throws IOException {
-		InstanceId id = InstanceId.of("abc");
+  @Test
+  public void verifySerialize() throws IOException {
+    InstanceId id = InstanceId.of("abc");
 
-		String result = objectMapper.writeValueAsString(id);
-		assertThat(result).isEqualTo("\"abc\"");
-	}
-
+    String result = objectMapper.writeValueAsString(id);
+    assertThat(result).isEqualTo("\"abc\"");
+  }
 }

@@ -18,7 +18,6 @@ package de.codecentric.boot.admin.server.utils.jackson;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import de.codecentric.boot.admin.server.domain.values.Endpoint;
 
 /**
@@ -28,9 +27,8 @@ import de.codecentric.boot.admin.server.domain.values.Endpoint;
  */
 public abstract class EndpointMixin {
 
-	@JsonCreator
-	public static Endpoint of(@JsonProperty("id") String id, @JsonProperty("url") String url) {
-		return Endpoint.of(id, url);
-	}
-
+  @JsonCreator
+  public static Endpoint of(@JsonProperty("id") String id, @JsonProperty("url") String url) {
+    return Endpoint.of(id, url);
+  }
 }

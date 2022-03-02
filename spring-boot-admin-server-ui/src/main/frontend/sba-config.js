@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import merge from 'lodash/merge';
+import merge from 'lodash/merge'
 
 const DEFAULT_CONFIG = {
   uiSettings: {
@@ -44,8 +44,8 @@ const DEFAULT_CONFIG = {
     headerName: 'X-XSRF-TOKEN'
   },
   use: function (ext) {
-    this.extensions.push(ext);
+    this.extensions.push(ext)
   }
-};
+}
 
 export default merge(DEFAULT_CONFIG, global.SBA)

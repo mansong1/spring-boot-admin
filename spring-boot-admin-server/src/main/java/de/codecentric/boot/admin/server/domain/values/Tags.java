@@ -16,6 +16,8 @@
 
 package de.codecentric.boot.admin.server.domain.values;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -23,75 +25,79 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collector;
-
 import javax.annotation.Nullable;
-
 import org.springframework.util.StringUtils;
-
-import static java.util.stream.Collectors.toMap;
 
 @lombok.EqualsAndHashCode
 @lombok.ToString
 public final class Tags implements Serializable {
 
-	private final Map<String, String> values;
+  private final Map<String, String> values;
 
-	private static final Tags EMPTY = new Tags(Collections.emptyMap());
+  private static final Tags EMPTY = new Tags(Collections.emptyMap());
 
-	private Tags(Map<String, String> tags) {
-		if (tags.isEmpty()) {
-			this.values = Collections.emptyMap();
-		}
-		else {
-			this.values = Collections.unmodifiableMap(new LinkedHashMap<>(tags));
-		}
-	}
+  private Tags(Map<String, String> tags) {
+    if (tags.isEmpty()) {
+      this.values = Collections.emptyMap();
+    } else {
+      this.values = Collections.unmodifiableMap(new LinkedHashMap<>(tags));
+    }
+  }
 
-	public Map<String, String> getValues() {
-		return this.values;
-	}
+  public Map<String, String> getValues() {
+    return this.values;
+  }
 
-	public Tags append(Tags other) {
-		Map<String, String> newTags = new LinkedHashMap<>(this.values);
-		newTags.putAll(other.values);
-		return new Tags(newTags);
-	}
+  public Tags append(Tags other) {
+    Map<String, String> newTags = new LinkedHashMap<>(this.values);
+    newTags.putAll(other.values);
+    return new Tags(newTags);
+  }
 
-	public static Tags empty() {
-		return EMPTY;
-	}
+  public static Tags empty() {
+    return EMPTY;
+  }
 
-	public static Tags from(Map<String, ?> map) {
-		return from(map, null);
-	}
+  public static Tags from(Map<String, ?> map) {
+    return from(map, null);
+  }
 
-	@SuppressWarnings("unchecked")
-	public static Tags from(Map<String, ?> map, @Nullable String prefix) {
-		if (map.isEmpty()) {
-			return empty();
-		}
+  @SuppressWarnings("unchecked")
+  public static Tags from(Map<String, ?> map, @Nullable String prefix) {
+    if (map.isEmpty()) {
+      return empty();
+    }
 
-		if (StringUtils.hasText(prefix)) {
-			Object nestedTags = map.get(prefix);
-			if (nestedTags instanceof Map) {
-				return from((Map<String, Object>) nestedTags);
-			}
+    if (StringUtils.hasText(prefix)) {
+      Object nestedTags = map.get(prefix);
+      if (nestedTags instanceof Map) {
+        return from((Map<String, Object>) nestedTags);
+      }
 
-			String flatPrefix = prefix + ".";
-			return from(map.entrySet().stream().filter((e) -> e.getKey() != null)
-					.filter((e) -> e.getKey().toLowerCase().startsWith(flatPrefix))
-					.collect(toLinkedHashMap((e) -> e.getKey().substring(flatPrefix.length()), Map.Entry::getValue)));
-		}
+      String flatPrefix = prefix + ".";
+      return from(
+          map.entrySet().stream()
+              .filter((e) -> e.getKey() != null)
+              .filter((e) -> e.getKey().toLowerCase().startsWith(flatPrefix))
+              .collect(
+                  toLinkedHashMap(
+                      (e) -> e.getKey().substring(flatPrefix.length()), Map.Entry::getValue)));
+    }
 
-		return new Tags(map.entrySet().stream().filter((e) -> e.getKey() != null)
-				.collect(toLinkedHashMap(Map.Entry::getKey, (e) -> Objects.toString(e.getValue()))));
-	}
+    return new Tags(
+        map.entrySet().stream()
+            .filter((e) -> e.getKey() != null)
+            .collect(toLinkedHashMap(Map.Entry::getKey, (e) -> Objects.toString(e.getValue()))));
+  }
 
-	private static <T, K, U> Collector<T, ?, LinkedHashMap<K, U>> toLinkedHashMap(
-			Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper) {
-		return toMap(keyMapper, valueMapper, (u, v) -> {
-			throw new IllegalStateException(String.format("Duplicate key %s", u));
-		}, LinkedHashMap::new);
-	}
-
+  private static <T, K, U> Collector<T, ?, LinkedHashMap<K, U>> toLinkedHashMap(
+      Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends U> valueMapper) {
+    return toMap(
+        keyMapper,
+        valueMapper,
+        (u, v) -> {
+          throw new IllegalStateException(String.format("Duplicate key %s", u));
+        },
+        LinkedHashMap::new);
+  }
 }

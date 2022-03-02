@@ -16,9 +16,8 @@
 
 package de.codecentric.boot.admin.server.notify;
 
-import reactor.core.publisher.Mono;
-
 import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import reactor.core.publisher.Mono;
 
 /**
  * Interface for components which emits notifications upon status changes in clients
@@ -27,6 +26,5 @@ import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
  */
 public interface Notifier {
 
-	Mono<Void> notify(InstanceEvent event);
-
+  Mono<Void> notify(InstanceEvent event);
 }

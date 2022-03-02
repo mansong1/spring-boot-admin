@@ -16,30 +16,31 @@
 
 package de.codecentric.boot.admin.server.services;
 
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import de.codecentric.boot.admin.server.domain.values.Registration;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class CloudFoundryInstanceIdGeneratorTest {
 
-	private CloudFoundryInstanceIdGenerator instance = new CloudFoundryInstanceIdGenerator(
-			new HashingInstanceUrlIdGenerator());
+  private CloudFoundryInstanceIdGenerator instance =
+      new CloudFoundryInstanceIdGenerator(new HashingInstanceUrlIdGenerator());
 
-	@Test
-	public void test_cloud_foundry_instance_id() {
-		Registration registration = Registration.create("foo", "http://health")
-				.metadata("applicationId", "549e64cf-a478-423d-9d6d-02d803a028a8").metadata("instanceId", "0").build();
-		assertThat(instance.generateId(registration))
-				.isEqualTo(InstanceId.of("549e64cf-a478-423d-9d6d-02d803a028a8:0"));
-	}
+  @Test
+  public void test_cloud_foundry_instance_id() {
+    Registration registration =
+        Registration.create("foo", "http://health")
+            .metadata("applicationId", "549e64cf-a478-423d-9d6d-02d803a028a8")
+            .metadata("instanceId", "0")
+            .build();
+    assertThat(instance.generateId(registration))
+        .isEqualTo(InstanceId.of("549e64cf-a478-423d-9d6d-02d803a028a8:0"));
+  }
 
-	@Test
-	public void test_health_url_instance_id() {
-		Registration registration = Registration.create("foo", "http://health").build();
-		assertThat(instance.generateId(registration)).isEqualTo(InstanceId.of("8f9960c48139"));
-	}
-
+  @Test
+  public void test_health_url_instance_id() {
+    Registration registration = Registration.create("foo", "http://health").build();
+    assertThat(instance.generateId(registration)).isEqualTo(InstanceId.of("8f9960c48139"));
+  }
 }

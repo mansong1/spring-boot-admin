@@ -16,14 +16,12 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.time.Instant;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import de.codecentric.boot.admin.server.domain.events.InstanceRegisteredEvent;
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import de.codecentric.boot.admin.server.domain.values.Registration;
+import java.time.Instant;
 
 /**
  * Jackson Mixin class helps in serialize/deserialize {@link InstanceRegisteredEvent}.
@@ -32,10 +30,10 @@ import de.codecentric.boot.admin.server.domain.values.Registration;
  */
 public abstract class InstanceRegisteredEventMixin {
 
-	@JsonCreator
-	public InstanceRegisteredEventMixin(@JsonProperty("instance") InstanceId instance,
-			@JsonProperty("version") long version, @JsonProperty("timestamp") Instant timestamp,
-			@JsonProperty("registration") Registration registration) {
-	}
-
+  @JsonCreator
+  public InstanceRegisteredEventMixin(
+      @JsonProperty("instance") InstanceId instance,
+      @JsonProperty("version") long version,
+      @JsonProperty("timestamp") Instant timestamp,
+      @JsonProperty("registration") Registration registration) {}
 }

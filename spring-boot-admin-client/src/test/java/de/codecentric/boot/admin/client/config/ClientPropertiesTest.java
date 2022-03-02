@@ -16,49 +16,49 @@
 
 package de.codecentric.boot.admin.client.config;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ClientPropertiesTest {
 
-	@Test
-	public void should_default_autoDeregister_to_false() {
-		MockEnvironment env = new MockEnvironment();
+  @Test
+  public void should_default_autoDeregister_to_false() {
+    MockEnvironment env = new MockEnvironment();
 
-		ClientProperties clientProperties = new ClientProperties();
-		assertThat(clientProperties.isAutoDeregistration(env)).isFalse();
+    ClientProperties clientProperties = new ClientProperties();
+    assertThat(clientProperties.isAutoDeregistration(env)).isFalse();
 
-		clientProperties.setAutoDeregistration(false);
-		assertThat(clientProperties.isAutoDeregistration(env)).isFalse();
+    clientProperties.setAutoDeregistration(false);
+    assertThat(clientProperties.isAutoDeregistration(env)).isFalse();
 
-		clientProperties.setAutoDeregistration(true);
-		assertThat(clientProperties.isAutoDeregistration(env)).isTrue();
-	}
+    clientProperties.setAutoDeregistration(true);
+    assertThat(clientProperties.isAutoDeregistration(env)).isTrue();
+  }
 
-	@Test
-	public void should_default_autoDeregister_to_true() {
-		MockEnvironment env = new MockEnvironment();
-		env.setProperty("VCAP_APPLICATION", "");
+  @Test
+  public void should_default_autoDeregister_to_true() {
+    MockEnvironment env = new MockEnvironment();
+    env.setProperty("VCAP_APPLICATION", "");
 
-		ClientProperties clientProperties = new ClientProperties();
-		assertThat(clientProperties.isAutoDeregistration(env)).isTrue();
+    ClientProperties clientProperties = new ClientProperties();
+    assertThat(clientProperties.isAutoDeregistration(env)).isTrue();
 
-		clientProperties.setAutoDeregistration(false);
-		assertThat(clientProperties.isAutoDeregistration(env)).isFalse();
+    clientProperties.setAutoDeregistration(false);
+    assertThat(clientProperties.isAutoDeregistration(env)).isFalse();
 
-		clientProperties.setAutoDeregistration(true);
-		assertThat(clientProperties.isAutoDeregistration(env)).isTrue();
-	}
+    clientProperties.setAutoDeregistration(true);
+    assertThat(clientProperties.isAutoDeregistration(env)).isTrue();
+  }
 
-	@Test
-	public void should_return_all_admiUrls() {
-		ClientProperties clientProperties = new ClientProperties();
-		clientProperties.setApiPath("register");
-		clientProperties.setUrl(new String[] { "http://first", "http://second" });
+  @Test
+  public void should_return_all_admiUrls() {
+    ClientProperties clientProperties = new ClientProperties();
+    clientProperties.setApiPath("register");
+    clientProperties.setUrl(new String[] {"http://first", "http://second"});
 
-		assertThat(clientProperties.getAdminUrl()).containsExactly("http://first/register", "http://second/register");
-	}
-
+    assertThat(clientProperties.getAdminUrl())
+        .containsExactly("http://first/register", "http://second/register");
+  }
 }

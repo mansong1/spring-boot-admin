@@ -13,57 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import Application from '@/services/application';
-import {bufferTime, concat, concatMap, defer, delay, filter, map, retryWhen, tap} from '@/utils/rxjs';
+import Application from '@/services/application'
+import { bufferTime, concat, concatMap, defer, delay, filter, map, retryWhen, tap } from '@/utils/rxjs'
 
 export default class {
-  constructor() {
-    this._listeners = {};
-    this._applications = new Map();
-    this.applications = [];
+  constructor () {
+    this._listeners = {}
+    this._applications = new Map()
+    this.applications = []
     this.applications.findInstance = (instanceId) => {
-      for (let application of this.applications) {
-        const instance = application.findInstance(instanceId);
+      for (const application of this.applications) {
+        const instance = application.findInstance(instanceId)
         if (instance) {
-          return instance;
+          return instance
         }
       }
-      return undefined;
-    };
+      return undefined
+    }
     this.applications.findApplicationForInstance = (instanceId) => {
-      return this.applications.find(application => Boolean(application.findInstance(instanceId)));
-    };
+      return this.applications.find(application => Boolean(application.findInstance(instanceId)))
+    }
   }
 
-  addEventListener(type, listener) {
+  addEventListener (type, listener) {
     if (!(type in this._listeners)) {
-      this._listeners[type] = [];
+      this._listeners[type] = []
     }
-    this._listeners[type].push(listener);
+    this._listeners[type].push(listener)
   }
 
-  removeEventListener(type, listener) {
+  removeEventListener (type, listener) {
     if (!(type in this._listeners)) {
-      return;
+      return
     }
 
-    const idx = this._listeners[type].indexOf(listener);
+    const idx = this._listeners[type].indexOf(listener)
     if (idx > 0) {
-      this._listeners[type].splice(idx, 1);
+      this._listeners[type].splice(idx, 1)
     }
   }
 
-  _dispatchEvent(type, ...args) {
+  _dispatchEvent (type, ...args) {
     if (!(type in this._listeners)) {
-      return;
+      return
     }
-    const target = this;
+    const target = this
     this._listeners[type].forEach(
       listener => listener.call(target, ...args)
     )
   }
 
-  start() {
+  start () {
     const list = defer(() => Application.list())
       .pipe(
         tap(
@@ -72,9 +72,9 @@ export default class {
           () => this._dispatchEvent('connected')
         ),
         concatMap(message => message.data)
-      );
+      )
     const stream = Application.getStream()
-      .pipe(map(message => message.data));
+      .pipe(map(message => message.data))
     this.subscription = concat(list, stream)
       .pipe(
         retryWhen(errors => errors.pipe(
@@ -85,34 +85,34 @@ export default class {
         filter(a => a.length > 0)
       ).subscribe({
         next: applications => this.updateApplications(applications)
-      });
+      })
   }
 
-  updateApplications(applications) {
-    applications.forEach(a => this.updateApplication(a));
-    this.applications.splice(0, this.applications.length, ...Array.from(this._applications.values()));
+  updateApplications (applications) {
+    applications.forEach(a => this.updateApplication(a))
+    this.applications.splice(0, this.applications.length, ...Array.from(this._applications.values()))
   }
 
-  updateApplication(application) {
-    const oldApplication = this._applications.get(application.name);
+  updateApplication (application) {
+    const oldApplication = this._applications.get(application.name)
     if (!oldApplication && application.instances.length > 0) {
-      this._applications.set(application.name, application);
-      this._dispatchEvent('added', application);
+      this._applications.set(application.name, application)
+      this._dispatchEvent('added', application)
     } else if (oldApplication && application.instances.length > 0) {
-      this._applications.set(application.name, application);
-      this._dispatchEvent('updated', application, oldApplication);
+      this._applications.set(application.name, application)
+      this._dispatchEvent('updated', application, oldApplication)
     } else if (oldApplication && application.instances.length <= 0) {
-      this._applications.delete(application.name);
-      this._dispatchEvent('removed', oldApplication);
+      this._applications.delete(application.name)
+      this._dispatchEvent('removed', oldApplication)
     }
   }
 
-  stop() {
+  stop () {
     if (this.subscription) {
       try {
-        !this.subscription.closed && this.subscription.unsubscribe();
+        !this.subscription.closed && this.subscription.unsubscribe()
       } finally {
-        this.subscription = null;
+        this.subscription = null
       }
     }
   }

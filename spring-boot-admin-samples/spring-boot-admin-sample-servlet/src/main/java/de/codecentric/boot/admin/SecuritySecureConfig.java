@@ -16,8 +16,8 @@
 
 package de.codecentric.boot.admin;
 
+import de.codecentric.boot.admin.server.config.AdminServerProperties;
 import java.util.UUID;
-
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -30,53 +30,73 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import de.codecentric.boot.admin.server.config.AdminServerProperties;
-
 @Profile("secure")
 // tag::configuration-spring-security[]
 @Configuration(proxyBeanMethods = false)
 public class SecuritySecureConfig extends WebSecurityConfigurerAdapter {
 
-	private final AdminServerProperties adminServer;
+  private final AdminServerProperties adminServer;
 
-	private final SecurityProperties security;
+  private final SecurityProperties security;
 
-	public SecuritySecureConfig(AdminServerProperties adminServer, SecurityProperties security) {
-		this.adminServer = adminServer;
-		this.security = security;
-	}
+  public SecuritySecureConfig(AdminServerProperties adminServer, SecurityProperties security) {
+    this.adminServer = adminServer;
+    this.security = security;
+  }
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		SavedRequestAwareAuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
-		successHandler.setTargetUrlParameter("redirectTo");
-		successHandler.setDefaultTargetUrl(this.adminServer.path("/"));
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    SavedRequestAwareAuthenticationSuccessHandler successHandler =
+        new SavedRequestAwareAuthenticationSuccessHandler();
+    successHandler.setTargetUrlParameter("redirectTo");
+    successHandler.setDefaultTargetUrl(this.adminServer.path("/"));
 
-		http.authorizeRequests(
-				(authorizeRequests) -> authorizeRequests.antMatchers(this.adminServer.path("/assets/**")).permitAll() // <1>
-						.antMatchers(this.adminServer.path("/actuator/info")).permitAll()
-						.antMatchers(this.adminServer.path("/actuator/health")).permitAll()
-						.antMatchers(this.adminServer.path("/login")).permitAll().anyRequest().authenticated() // <2>
-		).formLogin(
-				(formLogin) -> formLogin.loginPage(this.adminServer.path("/login")).successHandler(successHandler).and() // <3>
-		).logout((logout) -> logout.logoutUrl(this.adminServer.path("/logout"))).httpBasic(Customizer.withDefaults()) // <4>
-				.csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // <5>
-						.ignoringRequestMatchers(
-								new AntPathRequestMatcher(this.adminServer.path("/instances"),
-										HttpMethod.POST.toString()), // <6>
-								new AntPathRequestMatcher(this.adminServer.path("/instances/*"),
-										HttpMethod.DELETE.toString()), // <6>
-								new AntPathRequestMatcher(this.adminServer.path("/actuator/**")) // <7>
-						))
-				.rememberMe((rememberMe) -> rememberMe.key(UUID.randomUUID().toString()).tokenValiditySeconds(1209600));
-	}
+    http.authorizeRequests(
+            (authorizeRequests) ->
+                authorizeRequests
+                    .antMatchers(this.adminServer.path("/assets/**"))
+                    .permitAll() // <1>
+                    .antMatchers(this.adminServer.path("/actuator/info"))
+                    .permitAll()
+                    .antMatchers(this.adminServer.path("/actuator/health"))
+                    .permitAll()
+                    .antMatchers(this.adminServer.path("/login"))
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated() // <2>
+            )
+        .formLogin(
+            (formLogin) ->
+                formLogin
+                    .loginPage(this.adminServer.path("/login"))
+                    .successHandler(successHandler)
+                    .and() // <3>
+            )
+        .logout((logout) -> logout.logoutUrl(this.adminServer.path("/logout")))
+        .httpBasic(Customizer.withDefaults()) // <4>
+        .csrf(
+            (csrf) ->
+                csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // <5>
+                    .ignoringRequestMatchers(
+                        new AntPathRequestMatcher(
+                            this.adminServer.path("/instances"), HttpMethod.POST.toString()), // <6>
+                        new AntPathRequestMatcher(
+                            this.adminServer.path("/instances/*"),
+                            HttpMethod.DELETE.toString()), // <6>
+                        new AntPathRequestMatcher(this.adminServer.path("/actuator/**")) // <7>
+                        ))
+        .rememberMe(
+            (rememberMe) ->
+                rememberMe.key(UUID.randomUUID().toString()).tokenValiditySeconds(1209600));
+  }
 
-	// Required to provide UserDetailsService for "remember functionality"
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.inMemoryAuthentication().withUser(security.getUser().getName())
-				.password("{noop}" + security.getUser().getPassword()).roles("USER");
-	}
-
+  // Required to provide UserDetailsService for "remember functionality"
+  @Override
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.inMemoryAuthentication()
+        .withUser(security.getUser().getName())
+        .password("{noop}" + security.getUser().getPassword())
+        .roles("USER");
+  }
 }
 // end::configuration-spring-security[]

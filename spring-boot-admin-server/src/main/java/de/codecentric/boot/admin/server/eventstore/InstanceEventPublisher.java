@@ -16,8 +16,8 @@
 
 package de.codecentric.boot.admin.server.eventstore;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import java.util.List;
-
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.slf4j.Logger;
@@ -25,34 +25,32 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-
 public class InstanceEventPublisher implements Publisher<InstanceEvent> {
 
-	private static final Logger log = LoggerFactory.getLogger(InstanceEventPublisher.class);
+  private static final Logger log = LoggerFactory.getLogger(InstanceEventPublisher.class);
 
-	private final Flux<InstanceEvent> publishedFlux;
+  private final Flux<InstanceEvent> publishedFlux;
 
-	private final Sinks.Many<InstanceEvent> unicast;
+  private final Sinks.Many<InstanceEvent> unicast;
 
-	private final Sinks.EmitFailureHandler emitFailureHandler = (signalType, emitResult) -> emitResult
-			.equals(Sinks.EmitResult.FAIL_NON_SERIALIZED);
+  private final Sinks.EmitFailureHandler emitFailureHandler =
+      (signalType, emitResult) -> emitResult.equals(Sinks.EmitResult.FAIL_NON_SERIALIZED);
 
-	protected InstanceEventPublisher() {
-		this.unicast = Sinks.many().unicast().onBackpressureBuffer();
-		this.publishedFlux = this.unicast.asFlux().publish().autoConnect(0);
-	}
+  protected InstanceEventPublisher() {
+    this.unicast = Sinks.many().unicast().onBackpressureBuffer();
+    this.publishedFlux = this.unicast.asFlux().publish().autoConnect(0);
+  }
 
-	protected void publish(List<InstanceEvent> events) {
-		events.forEach((event) -> {
-			log.debug("Event published {}", event);
-			this.unicast.emitNext(event, emitFailureHandler);
-		});
-	}
+  protected void publish(List<InstanceEvent> events) {
+    events.forEach(
+        (event) -> {
+          log.debug("Event published {}", event);
+          this.unicast.emitNext(event, emitFailureHandler);
+        });
+  }
 
-	@Override
-	public void subscribe(Subscriber<? super InstanceEvent> s) {
-		this.publishedFlux.subscribe(s);
-	}
-
+  @Override
+  public void subscribe(Subscriber<? super InstanceEvent> s) {
+    this.publishedFlux.subscribe(s);
+  }
 }

@@ -16,24 +16,6 @@
 
 package de.codecentric.boot.admin.client;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.CountDownLatch;
-
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-
-import de.codecentric.boot.admin.client.registration.ApplicationRegistrator;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.matching;
@@ -43,69 +25,88 @@ import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import de.codecentric.boot.admin.client.registration.ApplicationRegistrator;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.CountDownLatch;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+
 public abstract class AbstractClientApplicationTest {
 
-	public WireMockServer wireMock = new WireMockServer(options().dynamicPort().notifier(new ConsoleNotifier(true)));
+  public WireMockServer wireMock =
+      new WireMockServer(options().dynamicPort().notifier(new ConsoleNotifier(true)));
 
-	private static final CountDownLatch cdl = new CountDownLatch(1);
+  private static final CountDownLatch cdl = new CountDownLatch(1);
 
-	public void setUp() throws Exception {
-		wireMock.start();
-		ResponseDefinitionBuilder response = created().withHeader("Content-Type", "application/json")
-				.withHeader("Connection", "close").withHeader("Location", wireMock.url("/instances/abcdef"))
-				.withBody("{ \"id\" : \"abcdef\" }");
-		wireMock.stubFor(post(urlEqualTo("/instances")).willReturn(response));
-	}
+  public void setUp() throws Exception {
+    wireMock.start();
+    ResponseDefinitionBuilder response =
+        created()
+            .withHeader("Content-Type", "application/json")
+            .withHeader("Connection", "close")
+            .withHeader("Location", wireMock.url("/instances/abcdef"))
+            .withBody("{ \"id\" : \"abcdef\" }");
+    wireMock.stubFor(post(urlEqualTo("/instances")).willReturn(response));
+  }
 
-	@AfterEach
-	void tearDown() {
-		wireMock.stop();
-	}
+  @AfterEach
+  void tearDown() {
+    wireMock.stop();
+  }
 
-	@Test
-	public void test_context() throws InterruptedException, UnknownHostException {
-		cdl.await();
-		Thread.sleep(2500);
-		String hostName = InetAddress.getLocalHost().getCanonicalHostName();
-		String serviceHost = "http://" + hostName + ":" + getServerPort();
-		String managementHost = "http://" + hostName + ":" + getManagementPort();
-		RequestPatternBuilder request = postRequestedFor(urlEqualTo("/instances"));
-		request.withHeader("Content-Type", equalTo("application/json"))
-				.withRequestBody(matchingJsonPath("$.name", equalTo("Test-Client")))
-				.withRequestBody(matchingJsonPath("$.healthUrl", equalTo(managementHost + "/mgmt/health")))
-				.withRequestBody(matchingJsonPath("$.managementUrl", equalTo(managementHost + "/mgmt")))
-				.withRequestBody(matchingJsonPath("$.serviceUrl", equalTo(serviceHost + "/")))
-				.withRequestBody(matchingJsonPath("$.metadata.startup", matching(".+")));
+  @Test
+  public void test_context() throws InterruptedException, UnknownHostException {
+    cdl.await();
+    Thread.sleep(2500);
+    String hostName = InetAddress.getLocalHost().getCanonicalHostName();
+    String serviceHost = "http://" + hostName + ":" + getServerPort();
+    String managementHost = "http://" + hostName + ":" + getManagementPort();
+    RequestPatternBuilder request = postRequestedFor(urlEqualTo("/instances"));
+    request
+        .withHeader("Content-Type", equalTo("application/json"))
+        .withRequestBody(matchingJsonPath("$.name", equalTo("Test-Client")))
+        .withRequestBody(matchingJsonPath("$.healthUrl", equalTo(managementHost + "/mgmt/health")))
+        .withRequestBody(matchingJsonPath("$.managementUrl", equalTo(managementHost + "/mgmt")))
+        .withRequestBody(matchingJsonPath("$.serviceUrl", equalTo(serviceHost + "/")))
+        .withRequestBody(matchingJsonPath("$.metadata.startup", matching(".+")));
 
-		wireMock.verify(request);
-	}
+    wireMock.verify(request);
+  }
 
-	protected abstract int getServerPort();
+  protected abstract int getServerPort();
 
-	protected abstract int getManagementPort();
+  protected abstract int getManagementPort();
 
-	@SpringBootConfiguration
-	@EnableAutoConfiguration
-	public static class TestClientApplication {
+  @SpringBootConfiguration
+  @EnableAutoConfiguration
+  public static class TestClientApplication {
 
-		@Autowired
-		private ApplicationRegistrator registrator;
+    @Autowired private ApplicationRegistrator registrator;
 
-		@EventListener
-		public void ping(ApplicationReadyEvent ev) {
-			new Thread(() -> {
-				try {
-					while (registrator.getRegisteredId() == null) {
-						Thread.sleep(500);
-					}
-				}
-				catch (InterruptedException ex) {
-					Thread.interrupted();
-				}
-				cdl.countDown();
-			}).start();
-		}
-
-	}
-
+    @EventListener
+    public void ping(ApplicationReadyEvent ev) {
+      new Thread(
+              () -> {
+                try {
+                  while (registrator.getRegisteredId() == null) {
+                    Thread.sleep(500);
+                  }
+                } catch (InterruptedException ex) {
+                  Thread.interrupted();
+                }
+                cdl.countDown();
+              })
+          .start();
+    }
+  }
 }

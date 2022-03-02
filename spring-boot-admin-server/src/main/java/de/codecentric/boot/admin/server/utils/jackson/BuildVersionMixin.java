@@ -18,7 +18,6 @@ package de.codecentric.boot.admin.server.utils.jackson;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import de.codecentric.boot.admin.server.domain.values.BuildVersion;
 
 /**
@@ -28,12 +27,11 @@ import de.codecentric.boot.admin.server.domain.values.BuildVersion;
  */
 public abstract class BuildVersionMixin {
 
-	@JsonCreator
-	public static BuildVersion valueOf(String s) {
-		return BuildVersion.valueOf(s);
-	}
+  @JsonCreator
+  public static BuildVersion valueOf(String s) {
+    return BuildVersion.valueOf(s);
+  }
 
-	@JsonValue
-	public abstract String getValue();
-
+  @JsonValue
+  public abstract String getValue();
 }

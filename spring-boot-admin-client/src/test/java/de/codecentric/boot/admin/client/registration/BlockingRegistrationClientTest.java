@@ -21,9 +21,8 @@ import org.springframework.web.client.RestTemplate;
 
 public class BlockingRegistrationClientTest extends AbstractRegistrationClientTest {
 
-	@BeforeEach
-	public void setUp() {
-		super.setUp(new BlockingRegistrationClient(new RestTemplate()));
-	}
-
+  @BeforeEach
+  public void setUp() {
+    super.setUp(new BlockingRegistrationClient(new RestTemplate()));
+  }
 }

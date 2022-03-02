@@ -16,9 +16,20 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import de.codecentric.boot.admin.server.domain.entities.Instance;
+import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
+import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import de.codecentric.boot.admin.server.domain.values.Registration;
+import de.codecentric.boot.admin.server.domain.values.StatusInfo;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpEntity;
@@ -29,112 +40,117 @@ import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import de.codecentric.boot.admin.server.domain.entities.Instance;
-import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
-import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-import de.codecentric.boot.admin.server.domain.values.Registration;
-import de.codecentric.boot.admin.server.domain.values.StatusInfo;
-
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class OpsGenieNotifierTest {
 
-	private OpsGenieNotifier notifier;
+  private OpsGenieNotifier notifier;
 
-	private RestTemplate restTemplate;
+  private RestTemplate restTemplate;
 
-	private InstanceRepository repository;
+  private InstanceRepository repository;
 
-	private static final Instance INSTANCE = Instance.create(InstanceId.of("-id-"))
-			.register(Registration.create("App", "http://health").build());
+  private static final Instance INSTANCE =
+      Instance.create(InstanceId.of("-id-"))
+          .register(Registration.create("App", "http://health").build());
 
-	@BeforeEach
-	public void setUp() {
-		repository = mock(InstanceRepository.class);
-		when(repository.find(INSTANCE.getId())).thenReturn(Mono.just(INSTANCE));
-		restTemplate = mock(RestTemplate.class);
+  @BeforeEach
+  public void setUp() {
+    repository = mock(InstanceRepository.class);
+    when(repository.find(INSTANCE.getId())).thenReturn(Mono.just(INSTANCE));
+    restTemplate = mock(RestTemplate.class);
 
-		notifier = new OpsGenieNotifier(repository, restTemplate);
-		notifier.setApiKey("--service--");
-		notifier.setUser("--user--");
-		notifier.setSource("--source--");
-		notifier.setEntity("--entity--");
-		notifier.setTags("--tag1--,--tag2--");
-		notifier.setActions("--action1--,--action2--");
-	}
+    notifier = new OpsGenieNotifier(repository, restTemplate);
+    notifier.setApiKey("--service--");
+    notifier.setUser("--user--");
+    notifier.setSource("--source--");
+    notifier.setEntity("--entity--");
+    notifier.setTags("--tag1--,--tag2--");
+    notifier.setActions("--action1--,--action2--");
+  }
 
-	@Test
-	public void test_onApplicationEvent_resolve() {
-		StepVerifier.create(notifier.notify(
-				new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion() + 1, StatusInfo.ofDown())))
-				.verifyComplete();
-		reset(restTemplate);
-		when(repository.find(INSTANCE.getId())).thenReturn(Mono.just(INSTANCE.withStatusInfo(StatusInfo.ofUp())));
+  @Test
+  public void test_onApplicationEvent_resolve() {
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion() + 1, StatusInfo.ofDown())))
+        .verifyComplete();
+    reset(restTemplate);
+    when(repository.find(INSTANCE.getId()))
+        .thenReturn(Mono.just(INSTANCE.withStatusInfo(StatusInfo.ofUp())));
 
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion() + 2, StatusInfo.ofUp())))
-				.verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion() + 2, StatusInfo.ofUp())))
+        .verifyComplete();
 
-		verify(restTemplate).exchange(eq("https://api.opsgenie.com/v2/alerts/App_-id-/close"), eq(HttpMethod.POST),
-				eq(expectedRequest("DOWN", "UP")), eq(Void.class));
-	}
+    verify(restTemplate)
+        .exchange(
+            eq("https://api.opsgenie.com/v2/alerts/App_-id-/close"),
+            eq(HttpMethod.POST),
+            eq(expectedRequest("DOWN", "UP")),
+            eq(Void.class));
+  }
 
-	@Test
-	public void test_onApplicationEvent_trigger() {
-		StepVerifier
-				.create(notifier.notify(
-						new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion() + 1, StatusInfo.ofUp())))
-				.verifyComplete();
-		reset(restTemplate);
-		when(repository.find(INSTANCE.getId())).thenReturn(Mono.just(INSTANCE.withStatusInfo(StatusInfo.ofDown())));
+  @Test
+  public void test_onApplicationEvent_trigger() {
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion() + 1, StatusInfo.ofUp())))
+        .verifyComplete();
+    reset(restTemplate);
+    when(repository.find(INSTANCE.getId()))
+        .thenReturn(Mono.just(INSTANCE.withStatusInfo(StatusInfo.ofDown())));
 
-		StepVerifier.create(notifier.notify(
-				new InstanceStatusChangedEvent(INSTANCE.getId(), INSTANCE.getVersion() + 2, StatusInfo.ofDown())))
-				.verifyComplete();
+    StepVerifier.create(
+            notifier.notify(
+                new InstanceStatusChangedEvent(
+                    INSTANCE.getId(), INSTANCE.getVersion() + 2, StatusInfo.ofDown())))
+        .verifyComplete();
 
-		verify(restTemplate).exchange(eq("https://api.opsgenie.com/v2/alerts"), eq(HttpMethod.POST),
-				eq(expectedRequest("UP", "DOWN")), eq(Void.class));
-	}
+    verify(restTemplate)
+        .exchange(
+            eq("https://api.opsgenie.com/v2/alerts"),
+            eq(HttpMethod.POST),
+            eq(expectedRequest("UP", "DOWN")),
+            eq(Void.class));
+  }
 
-	private String getMessage(String expectedStatus) {
-		return String.format("App/-id- is %s", expectedStatus);
-	}
+  private String getMessage(String expectedStatus) {
+    return String.format("App/-id- is %s", expectedStatus);
+  }
 
-	private String getDescription(String expectedOldStatus, String expectedNewStatus) {
-		return String.format("Instance App (-id-) went from %s to %s", expectedOldStatus, expectedNewStatus);
-	}
+  private String getDescription(String expectedOldStatus, String expectedNewStatus) {
+    return String.format(
+        "Instance App (-id-) went from %s to %s", expectedOldStatus, expectedNewStatus);
+  }
 
-	private HttpEntity<Map<String, Object>> expectedRequest(String expectedOldStatus, String expectedNewStatus) {
-		Map<String, Object> expected = new HashMap<>();
+  private HttpEntity<Map<String, Object>> expectedRequest(
+      String expectedOldStatus, String expectedNewStatus) {
+    Map<String, Object> expected = new HashMap<>();
 
-		expected.put("user", "--user--");
-		expected.put("source", "--source--");
+    expected.put("user", "--user--");
+    expected.put("source", "--source--");
 
-		if (!"UP".equals(expectedNewStatus)) {
-			expected.put("message", getMessage(expectedNewStatus));
-			expected.put("alias", "App_-id-");
-			expected.put("description", getDescription(expectedOldStatus, expectedNewStatus));
-			expected.put("entity", "--entity--");
-			expected.put("tags", "--tag1--,--tag2--");
-			expected.put("actions", "--action1--,--action2--");
+    if (!"UP".equals(expectedNewStatus)) {
+      expected.put("message", getMessage(expectedNewStatus));
+      expected.put("alias", "App_-id-");
+      expected.put("description", getDescription(expectedOldStatus, expectedNewStatus));
+      expected.put("entity", "--entity--");
+      expected.put("tags", "--tag1--,--tag2--");
+      expected.put("actions", "--action1--,--action2--");
 
-			Map<String, Object> details = new HashMap<>();
-			details.put("type", "link");
-			details.put("href", "http://health");
-			details.put("text", "Instance health-endpoint");
-			expected.put("details", details);
-		}
+      Map<String, Object> details = new HashMap<>();
+      details.put("type", "link");
+      details.put("href", "http://health");
+      details.put("text", "Instance health-endpoint");
+      expected.put("details", details);
+    }
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set(HttpHeaders.AUTHORIZATION, "GenieKey --service--");
-		return new HttpEntity<>(expected, headers);
-	}
-
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    headers.set(HttpHeaders.AUTHORIZATION, "GenieKey --service--");
+    return new HttpEntity<>(expected, headers);
+  }
 }

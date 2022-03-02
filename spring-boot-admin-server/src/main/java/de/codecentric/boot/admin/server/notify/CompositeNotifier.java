@@ -16,13 +16,12 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 
 /**
  * A notifier delegating notifications to all specified notifiers.
@@ -31,21 +30,29 @@ import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
  */
 public class CompositeNotifier implements Notifier {
 
-	private static final Logger log = LoggerFactory.getLogger(CompositeNotifier.class);
+  private static final Logger log = LoggerFactory.getLogger(CompositeNotifier.class);
 
-	private final Iterable<Notifier> delegates;
+  private final Iterable<Notifier> delegates;
 
-	public CompositeNotifier(Iterable<Notifier> delegates) {
-		Assert.notNull(delegates, "'delegates' must not be null!");
-		this.delegates = delegates;
-	}
+  public CompositeNotifier(Iterable<Notifier> delegates) {
+    Assert.notNull(delegates, "'delegates' must not be null!");
+    this.delegates = delegates;
+  }
 
-	@Override
-	public Mono<Void> notify(InstanceEvent event) {
-		return Flux.fromIterable(delegates).flatMap((d) -> d.notify(event).onErrorResume((error) -> {
-			log.warn("Unexpected exception while triggering notifications. Notification might not be sent.", error);
-			return Mono.empty();
-		})).then();
-	}
-
+  @Override
+  public Mono<Void> notify(InstanceEvent event) {
+    return Flux.fromIterable(delegates)
+        .flatMap(
+            (d) ->
+                d.notify(event)
+                    .onErrorResume(
+                        (error) -> {
+                          log.warn(
+                              "Unexpected exception while triggering notifications. Notification"
+                                  + " might not be sent.",
+                              error);
+                          return Mono.empty();
+                        }))
+        .then();
+  }
 }

@@ -17,51 +17,49 @@
 package de.codecentric.boot.admin.server.domain.values;
 
 import java.io.Serializable;
-
 import org.springframework.util.Assert;
 
 @lombok.Data
 public final class Endpoint implements Serializable {
 
-	public static final String INFO = "info";
+  public static final String INFO = "info";
 
-	public static final String HEALTH = "health";
+  public static final String HEALTH = "health";
 
-	public static final String LOGFILE = "logfile";
+  public static final String LOGFILE = "logfile";
 
-	public static final String ENV = "env";
+  public static final String ENV = "env";
 
-	public static final String HTTPTRACE = "httptrace";
+  public static final String HTTPTRACE = "httptrace";
 
-	public static final String THREADDUMP = "threaddump";
+  public static final String THREADDUMP = "threaddump";
 
-	public static final String LIQUIBASE = "liquibase";
+  public static final String LIQUIBASE = "liquibase";
 
-	public static final String FLYWAY = "flyway";
+  public static final String FLYWAY = "flyway";
 
-	public static final String ACTUATOR_INDEX = "actuator-index";
+  public static final String ACTUATOR_INDEX = "actuator-index";
 
-	public static final String BEANS = "beans";
+  public static final String BEANS = "beans";
 
-	public static final String CONFIGPROPS = "configprops";
+  public static final String CONFIGPROPS = "configprops";
 
-	public static final String MAPPINGS = "mappings";
+  public static final String MAPPINGS = "mappings";
 
-	public static final String STARTUP = "startup";
+  public static final String STARTUP = "startup";
 
-	private final String id;
+  private final String id;
 
-	private final String url;
+  private final String url;
 
-	private Endpoint(String id, String url) {
-		Assert.hasText(id, "'id' must not be empty.");
-		Assert.hasText(url, "'url' must not be empty.");
-		this.id = id;
-		this.url = url;
-	}
+  private Endpoint(String id, String url) {
+    Assert.hasText(id, "'id' must not be empty.");
+    Assert.hasText(url, "'url' must not be empty.");
+    this.id = id;
+    this.url = url;
+  }
 
-	public static Endpoint of(String id, String url) {
-		return new Endpoint(id, url);
-	}
-
+  public static Endpoint of(String id, String url) {
+    return new Endpoint(id, url);
+  }
 }

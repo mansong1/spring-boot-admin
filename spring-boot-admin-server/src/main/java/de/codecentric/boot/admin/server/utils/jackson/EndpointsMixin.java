@@ -16,14 +16,11 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.util.Collection;
-
-import javax.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import de.codecentric.boot.admin.server.domain.values.Endpoint;
 import de.codecentric.boot.admin.server.domain.values.Endpoints;
+import java.util.Collection;
+import javax.annotation.Nullable;
 
 /**
  * Jackson Mixin class helps in serialize/deserialize {@link Endpoints}.
@@ -32,9 +29,8 @@ import de.codecentric.boot.admin.server.domain.values.Endpoints;
  */
 public abstract class EndpointsMixin {
 
-	@JsonCreator
-	public static Endpoints of(@Nullable Collection<Endpoint> endpoints) {
-		return Endpoints.of(endpoints);
-	}
-
+  @JsonCreator
+  public static Endpoints of(@Nullable Collection<Endpoint> endpoints) {
+    return Endpoints.of(endpoints);
+  }
 }

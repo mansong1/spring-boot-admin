@@ -16,19 +16,18 @@
 
 package de.codecentric.boot.admin.server.cloud.discovery;
 
-import org.springframework.cloud.client.ServiceInstance;
-
 import static org.springframework.util.StringUtils.hasText;
+
+import org.springframework.cloud.client.ServiceInstance;
 
 public class KubernetesServiceInstanceConverter extends DefaultServiceInstanceConverter {
 
-	@Override
-	protected int getManagementPort(ServiceInstance instance) {
-		String managementPort = instance.getMetadata().get("port.management");
-		if (hasText(managementPort)) {
-			return Integer.parseInt(managementPort);
-		}
-		return super.getManagementPort(instance);
-	}
-
+  @Override
+  protected int getManagementPort(ServiceInstance instance) {
+    String managementPort = instance.getMetadata().get("port.management");
+    if (hasText(managementPort)) {
+      return Integer.parseInt(managementPort);
+    }
+    return super.getManagementPort(instance);
+  }
 }

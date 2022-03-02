@@ -16,57 +16,68 @@
 
 package de.codecentric.boot.admin.server.ui.web;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import de.codecentric.boot.admin.server.ui.extensions.UiExtensions;
-import de.codecentric.boot.admin.server.web.servlet.AdminControllerHandlerMapping;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import de.codecentric.boot.admin.server.ui.extensions.UiExtensions;
+import de.codecentric.boot.admin.server.web.servlet.AdminControllerHandlerMapping;
+import org.junit.jupiter.api.Test;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 public class UiControllerTest {
 
-	@Test
-	public void should_use_default_url() throws Exception {
-		MockMvc mockMvc = setupController("");
+  @Test
+  public void should_use_default_url() throws Exception {
+    MockMvc mockMvc = setupController("");
 
-		mockMvc.perform(get("http://example/")).andExpect(status().isOk()).andExpect(view().name("index"))
-				.andExpect(model().attribute("baseUrl", "http://example/"));
-	}
+    mockMvc
+        .perform(get("http://example/"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("index"))
+        .andExpect(model().attribute("baseUrl", "http://example/"));
+  }
 
-	@Test
-	public void should_use_path_from_public_url() throws Exception {
-		MockMvc mockMvc = setupController("/public");
+  @Test
+  public void should_use_path_from_public_url() throws Exception {
+    MockMvc mockMvc = setupController("/public");
 
-		mockMvc.perform(get("http://example/")).andExpect(status().isOk()).andExpect(view().name("index"))
-				.andExpect(model().attribute("baseUrl", "http://example/public/"));
-	}
+    mockMvc
+        .perform(get("http://example/"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("index"))
+        .andExpect(model().attribute("baseUrl", "http://example/public/"));
+  }
 
-	@Test
-	public void should_use_host_and_path_from_public_url() throws Exception {
-		MockMvc mockMvc = setupController("http://public/public");
+  @Test
+  public void should_use_host_and_path_from_public_url() throws Exception {
+    MockMvc mockMvc = setupController("http://public/public");
 
-		mockMvc.perform(get("http://example/")).andExpect(status().isOk()).andExpect(view().name("index"))
-				.andExpect(model().attribute("baseUrl", "http://public/public/"));
-	}
+    mockMvc
+        .perform(get("http://example/"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("index"))
+        .andExpect(model().attribute("baseUrl", "http://public/public/"));
+  }
 
-	@Test
-	public void should_use_scheme_host_and_path_from_public_url() throws Exception {
-		MockMvc mockMvc = setupController("https://public/public");
+  @Test
+  public void should_use_scheme_host_and_path_from_public_url() throws Exception {
+    MockMvc mockMvc = setupController("https://public/public");
 
-		mockMvc.perform(get("http://example/")).andExpect(status().isOk()).andExpect(view().name("index"))
-				.andExpect(model().attribute("baseUrl", "https://public/public/"));
-	}
+    mockMvc
+        .perform(get("http://example/"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("index"))
+        .andExpect(model().attribute("baseUrl", "https://public/public/"));
+  }
 
-	private MockMvc setupController(String publicUrl) {
-		return MockMvcBuilders
-				.standaloneSetup(
-						new UiController(publicUrl, UiExtensions.EMPTY, UiController.Settings.builder().build()))
-				.setCustomHandlerMapping(() -> new AdminControllerHandlerMapping("")).build();
-	}
-
+  private MockMvc setupController(String publicUrl) {
+    return MockMvcBuilders.standaloneSetup(
+            new UiController(
+                publicUrl, UiExtensions.EMPTY, UiController.Settings.builder().build()))
+        .setCustomHandlerMapping(() -> new AdminControllerHandlerMapping(""))
+        .build();
+  }
 }

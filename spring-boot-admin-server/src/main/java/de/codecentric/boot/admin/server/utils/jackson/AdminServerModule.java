@@ -17,7 +17,6 @@
 package de.codecentric.boot.admin.server.utils.jackson;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceEndpointsDetectedEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
@@ -37,6 +36,7 @@ import de.codecentric.boot.admin.server.domain.values.Tags;
 /**
  * Jackson module for Spring Boot Admin Server. <br>
  * In order to use this module just add this modules into your ObjectMapper configuration.
+ *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
  *     mapper.registerModule(new AdminServerModule());
@@ -47,32 +47,35 @@ import de.codecentric.boot.admin.server.domain.values.Tags;
  */
 public class AdminServerModule extends SimpleModule {
 
-	/**
-	 * Construct the module with a pattern for registration metadata keys. The values of
-	 * the matched metadata keys will be sanitized before serializing to json.
-	 * @param metadataKeyPatterns pattern for metadata keys which should be sanitized
-	 */
-	public AdminServerModule(String[] metadataKeyPatterns) {
-		super(AdminServerModule.class.getName());
+  /**
+   * Construct the module with a pattern for registration metadata keys. The values of the matched
+   * metadata keys will be sanitized before serializing to json.
+   *
+   * @param metadataKeyPatterns pattern for metadata keys which should be sanitized
+   */
+  public AdminServerModule(String[] metadataKeyPatterns) {
+    super(AdminServerModule.class.getName());
 
-		addDeserializer(Registration.class, new RegistrationDeserializer());
-		setSerializerModifier(new RegistrationBeanSerializerModifier(new SanitizingMapSerializer(metadataKeyPatterns)));
+    addDeserializer(Registration.class, new RegistrationDeserializer());
+    setSerializerModifier(
+        new RegistrationBeanSerializerModifier(new SanitizingMapSerializer(metadataKeyPatterns)));
 
-		setMixInAnnotation(InstanceDeregisteredEvent.class, InstanceDeregisteredEventMixin.class);
-		setMixInAnnotation(InstanceEndpointsDetectedEvent.class, InstanceEndpointsDetectedEventMixin.class);
-		setMixInAnnotation(InstanceEvent.class, InstanceEventMixin.class);
-		setMixInAnnotation(InstanceInfoChangedEvent.class, InstanceInfoChangedEventMixin.class);
-		setMixInAnnotation(InstanceRegisteredEvent.class, InstanceRegisteredEventMixin.class);
-		setMixInAnnotation(InstanceRegistrationUpdatedEvent.class, InstanceRegistrationUpdatedEventMixin.class);
-		setMixInAnnotation(InstanceStatusChangedEvent.class, InstanceStatusChangedEventMixin.class);
+    setMixInAnnotation(InstanceDeregisteredEvent.class, InstanceDeregisteredEventMixin.class);
+    setMixInAnnotation(
+        InstanceEndpointsDetectedEvent.class, InstanceEndpointsDetectedEventMixin.class);
+    setMixInAnnotation(InstanceEvent.class, InstanceEventMixin.class);
+    setMixInAnnotation(InstanceInfoChangedEvent.class, InstanceInfoChangedEventMixin.class);
+    setMixInAnnotation(InstanceRegisteredEvent.class, InstanceRegisteredEventMixin.class);
+    setMixInAnnotation(
+        InstanceRegistrationUpdatedEvent.class, InstanceRegistrationUpdatedEventMixin.class);
+    setMixInAnnotation(InstanceStatusChangedEvent.class, InstanceStatusChangedEventMixin.class);
 
-		setMixInAnnotation(BuildVersion.class, BuildVersionMixin.class);
-		setMixInAnnotation(Endpoint.class, EndpointMixin.class);
-		setMixInAnnotation(Endpoints.class, EndpointsMixin.class);
-		setMixInAnnotation(Info.class, InfoMixin.class);
-		setMixInAnnotation(InstanceId.class, InstanceIdMixin.class);
-		setMixInAnnotation(StatusInfo.class, StatusInfoMixin.class);
-		setMixInAnnotation(Tags.class, TagsMixin.class);
-	}
-
+    setMixInAnnotation(BuildVersion.class, BuildVersionMixin.class);
+    setMixInAnnotation(Endpoint.class, EndpointMixin.class);
+    setMixInAnnotation(Endpoints.class, EndpointsMixin.class);
+    setMixInAnnotation(Info.class, InfoMixin.class);
+    setMixInAnnotation(InstanceId.class, InstanceIdMixin.class);
+    setMixInAnnotation(StatusInfo.class, StatusInfoMixin.class);
+    setMixInAnnotation(Tags.class, TagsMixin.class);
+  }
 }

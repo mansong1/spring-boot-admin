@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import subscribing from '@/mixins/subscribing';
-import {timer} from '@/utils/rxjs';
-import moment from 'moment';
+import subscribing from '@/mixins/subscribing'
+import { timer } from '@/utils/rxjs'
+import moment from 'moment'
 
 export default {
   props: ['value'],
@@ -25,30 +25,30 @@ export default {
     startTs: null,
     offset: null
   }),
-  render() {
-    return this._v(this.clock);
+  render () {
+    return this._v(this.clock)
   },
   computed: {
-    clock() {
+    clock () {
       if (!this.value) {
-        return null;
+        return null
       }
-      const duration = moment.duration(this.value + this.offset);
-      return `${Math.floor(duration.asDays())}d ${duration.hours()}h ${duration.minutes()}m ${duration.seconds()}s`;
+      const duration = moment.duration(this.value + this.offset)
+      return `${Math.floor(duration.asDays())}d ${duration.hours()}h ${duration.minutes()}m ${duration.seconds()}s`
     }
   },
   watch: {
     value: 'subscribe'
   },
   methods: {
-    createSubscription() {
+    createSubscription () {
       if (this.value) {
-        const vm = this;
-        vm.startTs = moment();
-        vm.offset = 0;
+        const vm = this
+        vm.startTs = moment()
+        vm.offset = 0
         return timer(0, 1000).subscribe({
           next: () => {
-            vm.offset = moment().valueOf() - vm.startTs.valueOf();
+            vm.offset = moment().valueOf() - vm.startTs.valueOf()
           }
         })
       }

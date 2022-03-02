@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-import {mount} from '@vue/test-utils';
-import moment from 'moment';
-import sbaStatus from './sba-status';
+import { mount } from '@vue/test-utils'
+import moment from 'moment'
+import sbaStatus from './sba-status'
 
-moment.now = () => +new Date(1318781879406);
+moment.now = () => +new Date(1318781879406)
 
 describe('application-status', () => {
-
   const testSnapshotForStatus = (status, date) => {
     const wrapper = mount(sbaStatus, {
       propsData: {
@@ -31,36 +30,35 @@ describe('application-status', () => {
       stubs: {
         'font-awesome-icon': true
       }
-    });
-    expect(wrapper.vm.$el).toMatchSnapshot();
-  };
+    })
+    expect(wrapper.vm.$el).toMatchSnapshot()
+  }
 
   it('should match the snapshot with status UP with Timestamp', () => {
-    testSnapshotForStatus('UP', 1318781000000);
-  });
+    testSnapshotForStatus('UP', 1318781000000)
+  })
 
   it('should match the snapshot with status RESTRICTED', () => {
-    testSnapshotForStatus('RESTRICTED');
-  });
+    testSnapshotForStatus('RESTRICTED')
+  })
 
   it('should match the snapshot with status OUT_OF_SERVICE', () => {
-    testSnapshotForStatus('OUT_OF_SERVICE');
-  });
+    testSnapshotForStatus('OUT_OF_SERVICE')
+  })
 
   it('should match the snapshot with status DOWN', () => {
-    testSnapshotForStatus('DOWN');
-  });
+    testSnapshotForStatus('DOWN')
+  })
 
   it('should match the snapshot with status UNKNOWN', () => {
-    testSnapshotForStatus('UNKNOWN');
-  });
+    testSnapshotForStatus('UNKNOWN')
+  })
 
   it('should match the snapshot with status OFFLINE', () => {
-    testSnapshotForStatus('OFFLINE');
-  });
+    testSnapshotForStatus('OFFLINE')
+  })
 
   it('should match the snapshot with custom status', () => {
-    testSnapshotForStatus('?');
-  });
-
-});
+    testSnapshotForStatus('?')
+  })
+})

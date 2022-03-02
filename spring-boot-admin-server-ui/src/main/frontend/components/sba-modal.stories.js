@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-import SbaModal from './sba-modal';
-import i18n from '@/i18n';
+import SbaModal from './sba-modal'
+import i18n from '@/i18n'
 
 export default {
   component: SbaModal,
-  title: 'SBA Components/Modal',
-};
+  title: 'SBA Components/Modal'
+}
 
-const Template = (args, {argTypes}) => ({
-  components: {SbaModal},
+const Template = (args, { argTypes }) => ({
+  components: { SbaModal },
   props: Object.keys(argTypes),
   template: `
     <sba-modal v-model="$props.open" v-bind="$props">
@@ -33,18 +33,18 @@ const Template = (args, {argTypes}) => ({
     </sba-modal>
   `,
   i18n
-});
+})
 
-export const ModalWithBody = Template.bind({});
+export const ModalWithBody = Template.bind({})
 ModalWithBody.args = {
   open: true,
   body: 'I am a body'
-};
+}
 
-export const ModalWithHeaderAndFooter = Template.bind({});
+export const ModalWithHeaderAndFooter = Template.bind({})
 ModalWithHeaderAndFooter.args = {
   open: true,
   header: 'You are awesome!',
   body: '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla accumsan, metus ultrices eleifend gravida, nulla nunc varius lectus, nec rutrum justo nibh eu lectus.</p>',
   footer: '<button class="button" @click="$props.open = false">Close me!</button>'
-};
+}

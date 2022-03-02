@@ -16,15 +16,12 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import de.codecentric.boot.admin.server.domain.values.StatusInfo;
+import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * Jackson Mixin class helps in serialize/deserialize {@link StatusInfo}.
@@ -33,22 +30,22 @@ import de.codecentric.boot.admin.server.domain.values.StatusInfo;
  */
 public abstract class StatusInfoMixin {
 
-	@JsonCreator
-	public static StatusInfo valueOf(@JsonProperty("status") String statusCode,
-			@JsonProperty("details") @Nullable Map<String, ?> details) {
-		return StatusInfo.valueOf(statusCode, details);
-	}
+  @JsonCreator
+  public static StatusInfo valueOf(
+      @JsonProperty("status") String statusCode,
+      @JsonProperty("details") @Nullable Map<String, ?> details) {
+    return StatusInfo.valueOf(statusCode, details);
+  }
 
-	@JsonIgnore
-	public abstract boolean isUp();
+  @JsonIgnore
+  public abstract boolean isUp();
 
-	@JsonIgnore
-	public abstract boolean isOffline();
+  @JsonIgnore
+  public abstract boolean isOffline();
 
-	@JsonIgnore
-	public abstract boolean isDown();
+  @JsonIgnore
+  public abstract boolean isDown();
 
-	@JsonIgnore
-	public abstract boolean isUnknown();
-
+  @JsonIgnore
+  public abstract boolean isUnknown();
 }

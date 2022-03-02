@@ -16,26 +16,22 @@
 
 package de.codecentric.boot.admin.client.registration;
 
-/**
- * Interface for client application registration at spring-boot-admin-server
- */
+/** Interface for client application registration at spring-boot-admin-server */
 public interface ApplicationRegistrator {
 
-	/**
-	 * Registers the client application at spring-boot-admin-server.
-	 * @return true if successful registration on at least one admin server
-	 */
-	boolean register();
+  /**
+   * Registers the client application at spring-boot-admin-server.
+   *
+   * @return true if successful registration on at least one admin server
+   */
+  boolean register();
 
-	/**
-	 * Tries to deregister currently registered application
-	 */
-	void deregister();
+  /** Tries to deregister currently registered application */
+  void deregister();
 
-	/**
-	 * @return the id of this client as given by the admin server. Returns null if the
-	 * client has not registered against the admin server yet.
-	 */
-	String getRegisteredId();
-
+  /**
+   * @return the id of this client as given by the admin server. Returns null if the client has not
+   *     registered against the admin server yet.
+   */
+  String getRegisteredId();
 }

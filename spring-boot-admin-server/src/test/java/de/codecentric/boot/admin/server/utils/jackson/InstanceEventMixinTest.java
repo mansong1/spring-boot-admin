@@ -16,9 +16,18 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceEndpointsDetectedEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceInfoChangedEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceRegisteredEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceRegistrationUpdatedEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,98 +36,120 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceEndpointsDetectedEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceInfoChangedEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceRegisteredEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceRegistrationUpdatedEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class InstanceEventMixinTest {
 
-	private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-	public InstanceEventMixinTest() {
-		AdminServerModule adminServerModule = new AdminServerModule(new String[] { ".*password$" });
-		JavaTimeModule javaTimeModule = new JavaTimeModule();
-		objectMapper = Jackson2ObjectMapperBuilder.json().modules(adminServerModule, javaTimeModule).build();
-	}
+  public InstanceEventMixinTest() {
+    AdminServerModule adminServerModule = new AdminServerModule(new String[] {".*password$"});
+    JavaTimeModule javaTimeModule = new JavaTimeModule();
+    objectMapper =
+        Jackson2ObjectMapperBuilder.json().modules(adminServerModule, javaTimeModule).build();
+  }
 
-	@Nested
-	public class InstanceEventTests {
+  @Nested
+  public class InstanceEventTests {
 
-		private JacksonTester<InstanceEvent> jsonTester;
+    private JacksonTester<InstanceEvent> jsonTester;
 
-		@BeforeEach
-		public void setup() {
-			JacksonTester.initFields(this, objectMapper);
-		}
+    @BeforeEach
+    public void setup() {
+      JacksonTester.initFields(this, objectMapper);
+    }
 
-		@Test
-		public void verifyDeserializeOfInstanceDeregisteredEvent() throws JSONException, JsonProcessingException {
-			String json = new JSONObject().put("instance", "test123").put("timestamp", 1587751031.000000000)
-					.put("type", "DEREGISTERED").toString();
+    @Test
+    public void verifyDeserializeOfInstanceDeregisteredEvent()
+        throws JSONException, JsonProcessingException {
+      String json =
+          new JSONObject()
+              .put("instance", "test123")
+              .put("timestamp", 1587751031.000000000)
+              .put("type", "DEREGISTERED")
+              .toString();
 
-			InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
-			assertThat(event).isInstanceOf(InstanceDeregisteredEvent.class);
-		}
+      InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
+      assertThat(event).isInstanceOf(InstanceDeregisteredEvent.class);
+    }
 
-		@Test
-		public void verifyDeserializeOfInstanceEndpointsDetectedEvent() throws JSONException, JsonProcessingException {
-			String json = new JSONObject().put("instance", "test123").put("timestamp", 1587751031.000000000)
-					.put("type", "ENDPOINTS_DETECTED").toString();
+    @Test
+    public void verifyDeserializeOfInstanceEndpointsDetectedEvent()
+        throws JSONException, JsonProcessingException {
+      String json =
+          new JSONObject()
+              .put("instance", "test123")
+              .put("timestamp", 1587751031.000000000)
+              .put("type", "ENDPOINTS_DETECTED")
+              .toString();
 
-			InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
-			assertThat(event).isInstanceOf(InstanceEndpointsDetectedEvent.class);
-		}
+      InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
+      assertThat(event).isInstanceOf(InstanceEndpointsDetectedEvent.class);
+    }
 
-		@Test
-		public void verifyDeserializeOfInstanceInfoChangedEvent() throws JSONException, JsonProcessingException {
-			String json = new JSONObject().put("instance", "test123").put("timestamp", 1587751031.000000000)
-					.put("type", "INFO_CHANGED").toString();
+    @Test
+    public void verifyDeserializeOfInstanceInfoChangedEvent()
+        throws JSONException, JsonProcessingException {
+      String json =
+          new JSONObject()
+              .put("instance", "test123")
+              .put("timestamp", 1587751031.000000000)
+              .put("type", "INFO_CHANGED")
+              .toString();
 
-			InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
-			assertThat(event).isInstanceOf(InstanceInfoChangedEvent.class);
-		}
+      InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
+      assertThat(event).isInstanceOf(InstanceInfoChangedEvent.class);
+    }
 
-		@Test
-		public void verifyDeserializeOfInstanceRegisteredEvent() throws JSONException, JsonProcessingException {
-			String json = new JSONObject().put("instance", "test123").put("timestamp", 1587751031.000000000)
-					.put("type", "REGISTERED")
-					.put("registration",
-							new JSONObject().put("name", "test").put("healthUrl", "http://localhost:9080/heath"))
-					.toString();
+    @Test
+    public void verifyDeserializeOfInstanceRegisteredEvent()
+        throws JSONException, JsonProcessingException {
+      String json =
+          new JSONObject()
+              .put("instance", "test123")
+              .put("timestamp", 1587751031.000000000)
+              .put("type", "REGISTERED")
+              .put(
+                  "registration",
+                  new JSONObject()
+                      .put("name", "test")
+                      .put("healthUrl", "http://localhost:9080/heath"))
+              .toString();
 
-			InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
-			assertThat(event).isInstanceOf(InstanceRegisteredEvent.class);
-		}
+      InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
+      assertThat(event).isInstanceOf(InstanceRegisteredEvent.class);
+    }
 
-		@Test
-		public void verifyDeserializeOfInstanceRegistrationUpdatedEvent()
-				throws JSONException, JsonProcessingException {
-			String json = new JSONObject().put("instance", "test123").put("timestamp", 1587751031.000000000)
-					.put("type", "REGISTRATION_UPDATED")
-					.put("registration",
-							new JSONObject().put("name", "test").put("healthUrl", "http://localhost:9080/heath"))
-					.toString();
+    @Test
+    public void verifyDeserializeOfInstanceRegistrationUpdatedEvent()
+        throws JSONException, JsonProcessingException {
+      String json =
+          new JSONObject()
+              .put("instance", "test123")
+              .put("timestamp", 1587751031.000000000)
+              .put("type", "REGISTRATION_UPDATED")
+              .put(
+                  "registration",
+                  new JSONObject()
+                      .put("name", "test")
+                      .put("healthUrl", "http://localhost:9080/heath"))
+              .toString();
 
-			InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
-			assertThat(event).isInstanceOf(InstanceRegistrationUpdatedEvent.class);
-		}
+      InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
+      assertThat(event).isInstanceOf(InstanceRegistrationUpdatedEvent.class);
+    }
 
-		@Test
-		public void verifyDeserializeOfInstanceStatusChangedEvent() throws JSONException, JsonProcessingException {
-			String json = new JSONObject().put("instance", "test123").put("timestamp", 1587751031.000000000)
-					.put("type", "STATUS_CHANGED").put("statusInfo", new JSONObject().put("status", "OFFLINE"))
-					.toString();
+    @Test
+    public void verifyDeserializeOfInstanceStatusChangedEvent()
+        throws JSONException, JsonProcessingException {
+      String json =
+          new JSONObject()
+              .put("instance", "test123")
+              .put("timestamp", 1587751031.000000000)
+              .put("type", "STATUS_CHANGED")
+              .put("statusInfo", new JSONObject().put("status", "OFFLINE"))
+              .toString();
 
-			InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
-			assertThat(event).isInstanceOf(InstanceStatusChangedEvent.class);
-		}
-
-	}
-
+      InstanceEvent event = objectMapper.readValue(json, InstanceEvent.class);
+      assertThat(event).isInstanceOf(InstanceStatusChangedEvent.class);
+    }
+  }
 }

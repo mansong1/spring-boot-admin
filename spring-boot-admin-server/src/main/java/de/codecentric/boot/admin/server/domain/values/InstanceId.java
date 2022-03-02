@@ -17,34 +17,30 @@
 package de.codecentric.boot.admin.server.domain.values;
 
 import java.io.Serializable;
-
 import org.springframework.util.Assert;
 
-/**
- * Value type for the instance identifier
- */
+/** Value type for the instance identifier */
 @lombok.Data
 public final class InstanceId implements Serializable, Comparable<InstanceId> {
 
-	private final String value;
+  private final String value;
 
-	private InstanceId(String value) {
-		Assert.hasText(value, "'value' must have text");
-		this.value = value;
-	}
+  private InstanceId(String value) {
+    Assert.hasText(value, "'value' must have text");
+    this.value = value;
+  }
 
-	public static InstanceId of(String value) {
-		return new InstanceId(value);
-	}
+  public static InstanceId of(String value) {
+    return new InstanceId(value);
+  }
 
-	@Override
-	public String toString() {
-		return value;
-	}
+  @Override
+  public String toString() {
+    return value;
+  }
 
-	@Override
-	public int compareTo(InstanceId that) {
-		return this.value.compareTo(that.value);
-	}
-
+  @Override
+  public int compareTo(InstanceId that) {
+    return this.value.compareTo(that.value);
+  }
 }

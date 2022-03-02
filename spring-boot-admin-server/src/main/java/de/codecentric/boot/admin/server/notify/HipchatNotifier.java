@@ -16,12 +16,15 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import de.codecentric.boot.admin.server.domain.entities.Instance;
+import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
+import de.codecentric.boot.admin.server.domain.values.StatusInfo;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.Nullable;
-
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ParserContext;
@@ -33,12 +36,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
-import de.codecentric.boot.admin.server.domain.entities.Instance;
-import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent;
-import de.codecentric.boot.admin.server.domain.values.StatusInfo;
-
 /**
  * Notifier submitting events to HipChat.
  *
@@ -46,141 +43,135 @@ import de.codecentric.boot.admin.server.domain.values.StatusInfo;
  */
 public class HipchatNotifier extends AbstractStatusChangeNotifier {
 
-	private static final String DEFAULT_DESCRIPTION = "<strong>#{instance.registration.name}</strong>/#{instance.id} is <strong>#{event.statusInfo.status}</strong>";
+  private static final String DEFAULT_DESCRIPTION =
+      "<strong>#{instance.registration.name}</strong>/#{instance.id} is"
+          + " <strong>#{event.statusInfo.status}</strong>";
 
-	private final SpelExpressionParser parser = new SpelExpressionParser();
+  private final SpelExpressionParser parser = new SpelExpressionParser();
 
-	private RestTemplate restTemplate;
+  private RestTemplate restTemplate;
 
-	/**
-	 * Base URL for HipChat API (i.e. https://ACCOUNT_NAME.hipchat.com/v2
-	 */
-	@Nullable
-	private URI url;
+  /** Base URL for HipChat API (i.e. https://ACCOUNT_NAME.hipchat.com/v2 */
+  @Nullable private URI url;
 
-	/**
-	 * API token that has access to notify in the room
-	 */
-	@Nullable
-	private String authToken;
+  /** API token that has access to notify in the room */
+  @Nullable private String authToken;
 
-	/**
-	 * Id of the room to notify
-	 */
-	@Nullable
-	private String roomId;
+  /** Id of the room to notify */
+  @Nullable private String roomId;
 
-	/**
-	 * TRUE will cause OS notification, FALSE will only notify to room
-	 */
-	private boolean notify = false;
+  /** TRUE will cause OS notification, FALSE will only notify to room */
+  private boolean notify = false;
 
-	/**
-	 * Trigger description. SpEL template using event as root;
-	 */
-	private Expression description;
+  /** Trigger description. SpEL template using event as root; */
+  private Expression description;
 
-	public HipchatNotifier(InstanceRepository repository, RestTemplate restTemplate) {
-		super(repository);
-		this.restTemplate = restTemplate;
-		this.description = parser.parseExpression(DEFAULT_DESCRIPTION, ParserContext.TEMPLATE_EXPRESSION);
-	}
+  public HipchatNotifier(InstanceRepository repository, RestTemplate restTemplate) {
+    super(repository);
+    this.restTemplate = restTemplate;
+    this.description =
+        parser.parseExpression(DEFAULT_DESCRIPTION, ParserContext.TEMPLATE_EXPRESSION);
+  }
 
-	@Override
-	protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
-		return Mono.fromRunnable(
-				() -> restTemplate.postForEntity(buildUrl(), createHipChatNotification(event, instance), Void.class));
-	}
+  @Override
+  protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
+    return Mono.fromRunnable(
+        () ->
+            restTemplate.postForEntity(
+                buildUrl(), createHipChatNotification(event, instance), Void.class));
+  }
 
-	protected String buildUrl() {
-		if (url == null) {
-			throw new IllegalStateException("'url' must not be null.");
-		}
-		return String.format("%s/room/%s/notification?auth_token=%s", url.toString(), roomId, authToken);
-	}
+  protected String buildUrl() {
+    if (url == null) {
+      throw new IllegalStateException("'url' must not be null.");
+    }
+    return String.format(
+        "%s/room/%s/notification?auth_token=%s", url.toString(), roomId, authToken);
+  }
 
-	protected HttpEntity<Map<String, Object>> createHipChatNotification(InstanceEvent event, Instance instance) {
-		Map<String, Object> body = new HashMap<>();
-		body.put("color", getColor(event));
-		body.put("message", getMessage(event, instance));
-		body.put("notify", getNotify());
-		body.put("message_format", "html");
+  protected HttpEntity<Map<String, Object>> createHipChatNotification(
+      InstanceEvent event, Instance instance) {
+    Map<String, Object> body = new HashMap<>();
+    body.put("color", getColor(event));
+    body.put("message", getMessage(event, instance));
+    body.put("notify", getNotify());
+    body.put("message_format", "html");
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new HttpEntity<>(body, headers);
-	}
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    return new HttpEntity<>(body, headers);
+  }
 
-	protected boolean getNotify() {
-		return notify;
-	}
+  protected boolean getNotify() {
+    return notify;
+  }
 
-	@Nullable
-	protected String getMessage(InstanceEvent event, Instance instance) {
-		Map<String, Object> root = new HashMap<>();
-		root.put("event", event);
-		root.put("instance", instance);
-		root.put("lastStatus", getLastStatus(event.getInstance()));
-		StandardEvaluationContext context = new StandardEvaluationContext(root);
-		context.addPropertyAccessor(new MapAccessor());
-		return description.getValue(context, String.class);
-	}
+  @Nullable
+  protected String getMessage(InstanceEvent event, Instance instance) {
+    Map<String, Object> root = new HashMap<>();
+    root.put("event", event);
+    root.put("instance", instance);
+    root.put("lastStatus", getLastStatus(event.getInstance()));
+    StandardEvaluationContext context = new StandardEvaluationContext(root);
+    context.addPropertyAccessor(new MapAccessor());
+    return description.getValue(context, String.class);
+  }
 
-	protected String getColor(InstanceEvent event) {
-		if (event instanceof InstanceStatusChangedEvent) {
-			return StatusInfo.STATUS_UP.equals(((InstanceStatusChangedEvent) event).getStatusInfo().getStatus())
-					? "green" : "red";
-		}
-		else {
-			return "gray";
-		}
-	}
+  protected String getColor(InstanceEvent event) {
+    if (event instanceof InstanceStatusChangedEvent) {
+      return StatusInfo.STATUS_UP.equals(
+              ((InstanceStatusChangedEvent) event).getStatusInfo().getStatus())
+          ? "green"
+          : "red";
+    } else {
+      return "gray";
+    }
+  }
 
-	public void setUrl(@Nullable URI url) {
-		this.url = url;
-	}
+  public void setUrl(@Nullable URI url) {
+    this.url = url;
+  }
 
-	@Nullable
-	public URI getUrl() {
-		return url;
-	}
+  @Nullable
+  public URI getUrl() {
+    return url;
+  }
 
-	public void setAuthToken(@Nullable String authToken) {
-		this.authToken = authToken;
-	}
+  public void setAuthToken(@Nullable String authToken) {
+    this.authToken = authToken;
+  }
 
-	@Nullable
-	public String getAuthToken() {
-		return authToken;
-	}
+  @Nullable
+  public String getAuthToken() {
+    return authToken;
+  }
 
-	public void setRoomId(@Nullable String roomId) {
-		this.roomId = roomId;
-	}
+  public void setRoomId(@Nullable String roomId) {
+    this.roomId = roomId;
+  }
 
-	@Nullable
-	public String getRoomId() {
-		return roomId;
-	}
+  @Nullable
+  public String getRoomId() {
+    return roomId;
+  }
 
-	public void setNotify(boolean notify) {
-		this.notify = notify;
-	}
+  public void setNotify(boolean notify) {
+    this.notify = notify;
+  }
 
-	public boolean isNotify() {
-		return notify;
-	}
+  public boolean isNotify() {
+    return notify;
+  }
 
-	public void setDescription(String description) {
-		this.description = parser.parseExpression(description, ParserContext.TEMPLATE_EXPRESSION);
-	}
+  public void setDescription(String description) {
+    this.description = parser.parseExpression(description, ParserContext.TEMPLATE_EXPRESSION);
+  }
 
-	public String getDescription() {
-		return description.getExpressionString();
-	}
+  public String getDescription() {
+    return description.getExpressionString();
+  }
 
-	public void setRestTemplate(RestTemplate restTemplate) {
-		this.restTemplate = restTemplate;
-	}
-
+  public void setRestTemplate(RestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 }

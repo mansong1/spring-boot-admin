@@ -24,26 +24,28 @@ import java.util.stream.Collectors;
 @lombok.Data
 public class UiExtensions implements Iterable<UiExtension> {
 
-	public static final UiExtensions EMPTY = new UiExtensions(Collections.emptyList());
+  public static final UiExtensions EMPTY = new UiExtensions(Collections.emptyList());
 
-	private final List<UiExtension> extensions;
+  private final List<UiExtension> extensions;
 
-	public UiExtensions(List<UiExtension> extensions) {
-		this.extensions = Collections.unmodifiableList(extensions);
-	}
+  public UiExtensions(List<UiExtension> extensions) {
+    this.extensions = Collections.unmodifiableList(extensions);
+  }
 
-	@Override
-	public Iterator<UiExtension> iterator() {
-		return this.extensions.iterator();
-	}
+  @Override
+  public Iterator<UiExtension> iterator() {
+    return this.extensions.iterator();
+  }
 
-	public List<UiExtension> getCssExtensions() {
-		return this.extensions.stream().filter((e) -> e.getResourcePath().endsWith(".css"))
-				.collect(Collectors.toList());
-	}
+  public List<UiExtension> getCssExtensions() {
+    return this.extensions.stream()
+        .filter((e) -> e.getResourcePath().endsWith(".css"))
+        .collect(Collectors.toList());
+  }
 
-	public List<UiExtension> getJsExtensions() {
-		return this.extensions.stream().filter((e) -> e.getResourcePath().endsWith(".js")).collect(Collectors.toList());
-	}
-
+  public List<UiExtension> getJsExtensions() {
+    return this.extensions.stream()
+        .filter((e) -> e.getResourcePath().endsWith(".js"))
+        .collect(Collectors.toList());
+  }
 }

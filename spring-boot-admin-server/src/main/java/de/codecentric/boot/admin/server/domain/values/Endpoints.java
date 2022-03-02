@@ -16,6 +16,8 @@
 
 package de.codecentric.boot.admin.server.domain.values;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,85 +27,79 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
 import javax.annotation.Nullable;
-
-import static java.util.stream.Collectors.toMap;
 
 @lombok.EqualsAndHashCode
 @lombok.ToString
 public final class Endpoints implements Iterable<Endpoint>, Serializable {
 
-	private final Map<String, Endpoint> endpoints;
+  private final Map<String, Endpoint> endpoints;
 
-	private static final Endpoints EMPTY = new Endpoints(Collections.emptyList());
+  private static final Endpoints EMPTY = new Endpoints(Collections.emptyList());
 
-	private Endpoints(Collection<Endpoint> endpoints) {
-		if (endpoints.isEmpty()) {
-			this.endpoints = Collections.emptyMap();
-		}
-		else {
-			this.endpoints = endpoints.stream().collect(toMap(Endpoint::getId, Function.identity()));
-		}
-	}
+  private Endpoints(Collection<Endpoint> endpoints) {
+    if (endpoints.isEmpty()) {
+      this.endpoints = Collections.emptyMap();
+    } else {
+      this.endpoints = endpoints.stream().collect(toMap(Endpoint::getId, Function.identity()));
+    }
+  }
 
-	public Optional<Endpoint> get(String id) {
-		return Optional.ofNullable(this.endpoints.get(id));
-	}
+  public Optional<Endpoint> get(String id) {
+    return Optional.ofNullable(this.endpoints.get(id));
+  }
 
-	public boolean isPresent(String id) {
-		return this.endpoints.containsKey(id);
-	}
+  public boolean isPresent(String id) {
+    return this.endpoints.containsKey(id);
+  }
 
-	@Override
-	public Iterator<Endpoint> iterator() {
-		return new UnmodifiableIterator<>(this.endpoints.values().iterator());
-	}
+  @Override
+  public Iterator<Endpoint> iterator() {
+    return new UnmodifiableIterator<>(this.endpoints.values().iterator());
+  }
 
-	public static Endpoints empty() {
-		return EMPTY;
-	}
+  public static Endpoints empty() {
+    return EMPTY;
+  }
 
-	public static Endpoints single(String id, String url) {
-		return new Endpoints(Collections.singletonList(Endpoint.of(id, url)));
-	}
+  public static Endpoints single(String id, String url) {
+    return new Endpoints(Collections.singletonList(Endpoint.of(id, url)));
+  }
 
-	public static Endpoints of(@Nullable Collection<Endpoint> endpoints) {
-		if (endpoints == null || endpoints.isEmpty()) {
-			return empty();
-		}
-		return new Endpoints(endpoints);
-	}
+  public static Endpoints of(@Nullable Collection<Endpoint> endpoints) {
+    if (endpoints == null || endpoints.isEmpty()) {
+      return empty();
+    }
+    return new Endpoints(endpoints);
+  }
 
-	public Endpoints withEndpoint(String id, String url) {
-		Endpoint endpoint = Endpoint.of(id, url);
-		HashMap<String, Endpoint> newEndpoints = new HashMap<>(this.endpoints);
-		newEndpoints.put(endpoint.getId(), endpoint);
-		return new Endpoints(newEndpoints.values());
-	}
+  public Endpoints withEndpoint(String id, String url) {
+    Endpoint endpoint = Endpoint.of(id, url);
+    HashMap<String, Endpoint> newEndpoints = new HashMap<>(this.endpoints);
+    newEndpoints.put(endpoint.getId(), endpoint);
+    return new Endpoints(newEndpoints.values());
+  }
 
-	public Stream<Endpoint> stream() {
-		return this.endpoints.values().stream();
-	}
+  public Stream<Endpoint> stream() {
+    return this.endpoints.values().stream();
+  }
 
-	private static final class UnmodifiableIterator<T> implements Iterator<T> {
+  private static final class UnmodifiableIterator<T> implements Iterator<T> {
 
-		private final Iterator<T> delegate;
+    private final Iterator<T> delegate;
 
-		private UnmodifiableIterator(Iterator<T> delegate) {
-			this.delegate = delegate;
-		}
+    private UnmodifiableIterator(Iterator<T> delegate) {
+      this.delegate = delegate;
+    }
 
-		@Override
-		public boolean hasNext() {
-			return this.delegate.hasNext();
-		}
+    @Override
+    public boolean hasNext() {
+      return this.delegate.hasNext();
+    }
 
-		@Override
-		public T next() {
-			return this.delegate.next();
-		}
-
-	}
-
+    @Override
+    public T next() {
+      return this.delegate.next();
+    }
+  }
 }

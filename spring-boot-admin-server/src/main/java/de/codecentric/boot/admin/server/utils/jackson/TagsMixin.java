@@ -16,12 +16,10 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
-
 import de.codecentric.boot.admin.server.domain.values.Tags;
+import java.util.Map;
 
 /**
  * Jackson Mixin class helps in serialize/deserialize {@link Tags}.
@@ -30,12 +28,11 @@ import de.codecentric.boot.admin.server.domain.values.Tags;
  */
 public abstract class TagsMixin {
 
-	@JsonCreator
-	public static Tags from(Map<String, ?> map) {
-		return Tags.from(map);
-	}
+  @JsonCreator
+  public static Tags from(Map<String, ?> map) {
+    return Tags.from(map);
+  }
 
-	@JsonAnyGetter
-	public abstract Map<String, String> getValues();
-
+  @JsonAnyGetter
+  public abstract Map<String, String> getValues();
 }

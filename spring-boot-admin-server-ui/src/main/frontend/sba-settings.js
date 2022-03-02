@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-//This is a Thymleaf template whill will be rendered by the backend
+// This is a Thymleaf template whill will be rendered by the backend
 // eslint-disable-next-line no-unused-vars
-var SBA = {
-  uiSettings: /*[[${uiSettings}]]*/ {},
-  user: /*[[${user}]]*/ null,
+const SBA = {
+  uiSettings: /* [[${uiSettings}]] */ {},
+  user: /* [[${user}]] */ null,
   extensions: [],
   csrf: {
-    parameterName: /*[[${_csrf} ? ${_csrf.parameterName} : 'null']]*/ null,
-    headerName: /*[[${_csrf} ? ${_csrf.headerName} : 'null']]*/ null
+    parameterName: /* [[${_csrf} ? ${_csrf.parameterName} : 'null']] */ null,
+    headerName: /* [[${_csrf} ? ${_csrf.headerName} : 'null']] */ null
   },
   use: function (ext) {
-    this.extensions.push(ext);
+    this.extensions.push(ext)
   }
-};
+}

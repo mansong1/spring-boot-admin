@@ -16,12 +16,18 @@
 
 package de.codecentric.boot.admin.server.ui.web;
 
-import java.security.Principal;
-import java.util.List;
-import java.util.Map;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import de.codecentric.boot.admin.server.ui.config.AdminServerUiProperties.PollTimer;
+import de.codecentric.boot.admin.server.ui.extensions.UiExtension;
+import de.codecentric.boot.admin.server.ui.extensions.UiExtensions;
+import de.codecentric.boot.admin.server.web.AdminController;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
 import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
@@ -30,174 +36,150 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import de.codecentric.boot.admin.server.ui.config.AdminServerUiProperties.PollTimer;
-import de.codecentric.boot.admin.server.ui.extensions.UiExtension;
-import de.codecentric.boot.admin.server.ui.extensions.UiExtensions;
-import de.codecentric.boot.admin.server.web.AdminController;
-
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
-
 @AdminController
 public class UiController {
 
-	private final String publicUrl;
+  private final String publicUrl;
 
-	private final UiExtensions uiExtensions;
+  private final UiExtensions uiExtensions;
 
-	private final Settings uiSettings;
+  private final Settings uiSettings;
 
-	public UiController(String publicUrl, UiExtensions uiExtensions, Settings uiSettings) {
-		this.publicUrl = publicUrl;
-		this.uiExtensions = uiExtensions;
-		this.uiSettings = uiSettings;
-	}
+  public UiController(String publicUrl, UiExtensions uiExtensions, Settings uiSettings) {
+    this.publicUrl = publicUrl;
+    this.uiExtensions = uiExtensions;
+    this.uiSettings = uiSettings;
+  }
 
-	@ModelAttribute(value = "baseUrl", binding = false)
-	public String getBaseUrl(UriComponentsBuilder uriBuilder) {
-		UriComponents publicComponents = UriComponentsBuilder.fromUriString(this.publicUrl).build();
-		if (publicComponents.getScheme() != null) {
-			uriBuilder.scheme(publicComponents.getScheme());
-		}
-		if (publicComponents.getHost() != null) {
-			uriBuilder.host(publicComponents.getHost());
-		}
-		if (publicComponents.getPort() != -1) {
-			uriBuilder.port(publicComponents.getPort());
-		}
-		if (publicComponents.getPath() != null) {
-			uriBuilder.path(publicComponents.getPath());
-		}
-		return uriBuilder.path("/").toUriString();
-	}
+  @ModelAttribute(value = "baseUrl", binding = false)
+  public String getBaseUrl(UriComponentsBuilder uriBuilder) {
+    UriComponents publicComponents = UriComponentsBuilder.fromUriString(this.publicUrl).build();
+    if (publicComponents.getScheme() != null) {
+      uriBuilder.scheme(publicComponents.getScheme());
+    }
+    if (publicComponents.getHost() != null) {
+      uriBuilder.host(publicComponents.getHost());
+    }
+    if (publicComponents.getPort() != -1) {
+      uriBuilder.port(publicComponents.getPort());
+    }
+    if (publicComponents.getPath() != null) {
+      uriBuilder.path(publicComponents.getPath());
+    }
+    return uriBuilder.path("/").toUriString();
+  }
 
-	@ModelAttribute(value = "uiSettings", binding = false)
-	public Settings getUiSettings() {
-		return this.uiSettings;
-	}
+  @ModelAttribute(value = "uiSettings", binding = false)
+  public Settings getUiSettings() {
+    return this.uiSettings;
+  }
 
-	@ModelAttribute(value = "cssExtensions", binding = false)
-	public List<UiExtension> getCssExtensions() {
-		return this.uiExtensions.getCssExtensions();
-	}
+  @ModelAttribute(value = "cssExtensions", binding = false)
+  public List<UiExtension> getCssExtensions() {
+    return this.uiExtensions.getCssExtensions();
+  }
 
-	@ModelAttribute(value = "jsExtensions", binding = false)
-	public List<UiExtension> getJsExtensions() {
-		return this.uiExtensions.getJsExtensions();
-	}
+  @ModelAttribute(value = "jsExtensions", binding = false)
+  public List<UiExtension> getJsExtensions() {
+    return this.uiExtensions.getJsExtensions();
+  }
 
-	// FIXME: add @Nullable to principal parameter
-	// see https://github.com/spring-projects/spring-framework/issues/25981
-	@ModelAttribute(value = "user", binding = false)
-	public Map<String, Object> getUser(Principal principal) {
-		if (principal != null) {
-			return singletonMap("name", principal.getName());
-		}
-		return emptyMap();
-	}
+  // FIXME: add @Nullable to principal parameter
+  // see https://github.com/spring-projects/spring-framework/issues/25981
+  @ModelAttribute(value = "user", binding = false)
+  public Map<String, Object> getUser(Principal principal) {
+    if (principal != null) {
+      return singletonMap("name", principal.getName());
+    }
+    return emptyMap();
+  }
 
-	@GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
-	public String index() {
-		return "index";
-	}
+  @GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
+  public String index() {
+    return "index";
+  }
 
-	@GetMapping(path = "/sba-settings.js", produces = "application/javascript")
-	public String sbaSettings() {
-		return "sba-settings.js";
-	}
+  @GetMapping(path = "/sba-settings.js", produces = "application/javascript")
+  public String sbaSettings() {
+    return "sba-settings.js";
+  }
 
-	@GetMapping(path = "/login", produces = MediaType.TEXT_HTML_VALUE)
-	public String login() {
-		return "login";
-	}
+  @GetMapping(path = "/login", produces = MediaType.TEXT_HTML_VALUE)
+  public String login() {
+    return "login";
+  }
 
-	@lombok.Data
-	@lombok.Builder
-	public static class Settings {
+  @lombok.Data
+  @lombok.Builder
+  public static class Settings {
 
-		private final String title;
+    private final String title;
 
-		private final String brand;
+    private final String brand;
 
-		private final String loginIcon;
+    private final String loginIcon;
 
-		private final String favicon;
+    private final String favicon;
 
-		private final String faviconDanger;
+    private final String faviconDanger;
 
-		private final PollTimer pollTimer;
+    private final PollTimer pollTimer;
 
-		private final boolean notificationFilterEnabled;
+    private final boolean notificationFilterEnabled;
 
-		private final boolean rememberMeEnabled;
+    private final boolean rememberMeEnabled;
 
-		private final List<String> availableLanguages;
+    private final List<String> availableLanguages;
 
-		private final List<String> routes;
+    private final List<String> routes;
 
-		private final List<ExternalView> externalViews;
+    private final List<ExternalView> externalViews;
 
-		private final List<ViewSettings> viewSettings;
+    private final List<ViewSettings> viewSettings;
+  }
 
-	}
+  @lombok.Data
+  @JsonInclude(Include.NON_EMPTY)
+  @ConstructorBinding
+  public static class ExternalView {
 
-	@lombok.Data
-	@JsonInclude(Include.NON_EMPTY)
-	@ConstructorBinding
-	public static class ExternalView {
+    /** Label to be shown in the navbar. */
+    private final String label;
 
-		/**
-		 * Label to be shown in the navbar.
-		 */
-		private final String label;
+    /** Url for the external view to be linked */
+    private final String url;
 
-		/**
-		 * Url for the external view to be linked
-		 */
-		private final String url;
+    /** Order in the navbar. */
+    private final Integer order;
 
-		/**
-		 * Order in the navbar.
-		 */
-		private final Integer order;
+    /** Should the page shown as an iframe or open in a new window. */
+    private final boolean iframe;
 
-		/**
-		 * Should the page shown as an iframe or open in a new window.
-		 */
-		private final boolean iframe;
+    public ExternalView(String label, String url, Integer order, boolean iframe) {
+      Assert.hasText(label, "'label' must not be empty");
+      Assert.hasText(url, "'url' must not be empty");
+      this.label = label;
+      this.url = url;
+      this.order = order;
+      this.iframe = iframe;
+    }
+  }
 
-		public ExternalView(String label, String url, Integer order, boolean iframe) {
-			Assert.hasText(label, "'label' must not be empty");
-			Assert.hasText(url, "'url' must not be empty");
-			this.label = label;
-			this.url = url;
-			this.order = order;
-			this.iframe = iframe;
-		}
+  @lombok.Data
+  @JsonInclude(Include.NON_EMPTY)
+  @ConstructorBinding
+  public static class ViewSettings {
 
-	}
+    /** Name of the view to address. */
+    private final String name;
 
-	@lombok.Data
-	@JsonInclude(Include.NON_EMPTY)
-	@ConstructorBinding
-	public static class ViewSettings {
+    /** Set view enabled. */
+    private boolean enabled;
 
-		/**
-		 * Name of the view to address.
-		 */
-		private final String name;
-
-		/**
-		 * Set view enabled.
-		 */
-		private boolean enabled;
-
-		public ViewSettings(String name, boolean enabled) {
-			Assert.hasText(name, "'name' must not be empty");
-			this.name = name;
-			this.enabled = enabled;
-		}
-
-	}
-
+    public ViewSettings(String name, boolean enabled) {
+      Assert.hasText(name, "'name' must not be empty");
+      this.name = name;
+      this.enabled = enabled;
+    }
+  }
 }

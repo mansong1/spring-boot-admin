@@ -16,42 +16,45 @@
 
 package de.codecentric.boot.admin.client.registration;
 
+import de.codecentric.boot.admin.client.config.CloudFoundryApplicationProperties;
+import de.codecentric.boot.admin.client.config.InstanceProperties;
+import de.codecentric.boot.admin.client.registration.metadata.MetadataContributor;
 import org.springframework.boot.actuate.autoconfigure.endpoint.web.WebEndpointProperties;
 import org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties;
 import org.springframework.boot.actuate.endpoint.web.PathMappedEndpoints;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.util.StringUtils;
 
-import de.codecentric.boot.admin.client.config.CloudFoundryApplicationProperties;
-import de.codecentric.boot.admin.client.config.InstanceProperties;
-import de.codecentric.boot.admin.client.registration.metadata.MetadataContributor;
-
 public class CloudFoundryApplicationFactory extends DefaultApplicationFactory {
 
-	private final CloudFoundryApplicationProperties cfApplicationProperties;
+  private final CloudFoundryApplicationProperties cfApplicationProperties;
 
-	private final InstanceProperties instance;
+  private final InstanceProperties instance;
 
-	public CloudFoundryApplicationFactory(InstanceProperties instance, ManagementServerProperties management,
-			ServerProperties server, PathMappedEndpoints pathMappedEndpoints, WebEndpointProperties webEndpoint,
-			MetadataContributor metadataContributor, CloudFoundryApplicationProperties cfApplicationProperties) {
-		super(instance, management, server, pathMappedEndpoints, webEndpoint, metadataContributor);
-		this.cfApplicationProperties = cfApplicationProperties;
-		this.instance = instance;
-	}
+  public CloudFoundryApplicationFactory(
+      InstanceProperties instance,
+      ManagementServerProperties management,
+      ServerProperties server,
+      PathMappedEndpoints pathMappedEndpoints,
+      WebEndpointProperties webEndpoint,
+      MetadataContributor metadataContributor,
+      CloudFoundryApplicationProperties cfApplicationProperties) {
+    super(instance, management, server, pathMappedEndpoints, webEndpoint, metadataContributor);
+    this.cfApplicationProperties = cfApplicationProperties;
+    this.instance = instance;
+  }
 
-	@Override
-	protected String getServiceBaseUrl() {
-		String baseUrl = this.instance.getServiceBaseUrl();
-		if (StringUtils.hasText(baseUrl)) {
-			return baseUrl;
-		}
+  @Override
+  protected String getServiceBaseUrl() {
+    String baseUrl = this.instance.getServiceBaseUrl();
+    if (StringUtils.hasText(baseUrl)) {
+      return baseUrl;
+    }
 
-		if (this.cfApplicationProperties.getUris().isEmpty()) {
-			return super.getServiceBaseUrl();
-		}
+    if (this.cfApplicationProperties.getUris().isEmpty()) {
+      return super.getServiceBaseUrl();
+    }
 
-		return "http://" + this.cfApplicationProperties.getUris().get(0);
-	}
-
+    return "http://" + this.cfApplicationProperties.getUris().get(0);
+  }
 }

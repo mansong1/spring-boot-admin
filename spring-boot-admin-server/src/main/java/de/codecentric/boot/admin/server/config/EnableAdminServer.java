@@ -21,16 +21,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.Import;
 
-/**
- * @author Dennis Schulte
- */
+/** @author Dennis Schulte */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import(AdminServerMarkerConfiguration.class)
-public @interface EnableAdminServer {
-
-}
+public @interface EnableAdminServer {}

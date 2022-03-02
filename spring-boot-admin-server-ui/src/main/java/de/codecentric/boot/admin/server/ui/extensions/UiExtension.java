@@ -19,8 +19,7 @@ package de.codecentric.boot.admin.server.ui.extensions;
 @lombok.Data
 public class UiExtension {
 
-	private final String resourcePath;
+  private final String resourcePath;
 
-	private final String resourceLocation;
-
+  private final String resourceLocation;
 }

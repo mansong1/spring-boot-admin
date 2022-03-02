@@ -16,10 +16,9 @@
 
 package de.codecentric.boot.admin.server.cloud.discovery;
 
-import org.springframework.cloud.client.ServiceInstance;
-
 import de.codecentric.boot.admin.server.domain.entities.Instance;
 import de.codecentric.boot.admin.server.domain.values.Registration;
+import org.springframework.cloud.client.ServiceInstance;
 
 /**
  * Converts {@link ServiceInstance}s to {@link Instance}s.
@@ -28,11 +27,11 @@ import de.codecentric.boot.admin.server.domain.values.Registration;
  */
 public interface ServiceInstanceConverter {
 
-	/**
-	 * Converts a service instance to a application instance to be registered.
-	 * @param instance the service instance.
-	 * @return the Registration
-	 */
-	Registration convert(ServiceInstance instance);
-
+  /**
+   * Converts a service instance to a application instance to be registered.
+   *
+   * @param instance the service instance.
+   * @return the Registration
+   */
+  Registration convert(ServiceInstance instance);
 }

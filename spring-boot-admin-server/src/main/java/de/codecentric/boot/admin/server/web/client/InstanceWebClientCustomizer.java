@@ -25,6 +25,5 @@ package de.codecentric.boot.admin.server.web.client;
 @FunctionalInterface
 public interface InstanceWebClientCustomizer {
 
-	void customize(InstanceWebClient.Builder instanceWebClientBuilder);
-
+  void customize(InstanceWebClient.Builder instanceWebClientBuilder);
 }

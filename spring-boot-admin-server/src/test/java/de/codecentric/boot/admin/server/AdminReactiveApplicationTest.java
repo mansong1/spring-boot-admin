@@ -16,6 +16,7 @@
 
 package de.codecentric.boot.admin.server;
 
+import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.SpringBootConfiguration;
@@ -28,37 +29,39 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
-import de.codecentric.boot.admin.server.config.EnableAdminServer;
-
 public class AdminReactiveApplicationTest extends AbstractAdminApplicationTest {
 
-	private ConfigurableApplicationContext instance;
+  private ConfigurableApplicationContext instance;
 
-	@BeforeEach
-	public void setUp() {
-		this.instance = new SpringApplicationBuilder().sources(TestAdminApplication.class)
-				.web(WebApplicationType.REACTIVE).run("--server.port=0", "--management.endpoints.web.base-path=/mgmt",
-						"--management.endpoints.web.exposure.include=info,health", "--info.test=foobar");
+  @BeforeEach
+  public void setUp() {
+    this.instance =
+        new SpringApplicationBuilder()
+            .sources(TestAdminApplication.class)
+            .web(WebApplicationType.REACTIVE)
+            .run(
+                "--server.port=0",
+                "--management.endpoints.web.base-path=/mgmt",
+                "--management.endpoints.web.exposure.include=info,health",
+                "--info.test=foobar");
 
-		super.setUp(this.instance.getEnvironment().getProperty("local.server.port", Integer.class, 0));
-	}
+    super.setUp(this.instance.getEnvironment().getProperty("local.server.port", Integer.class, 0));
+  }
 
-	@AfterEach
-	public void shutdown() {
-		this.instance.close();
-	}
+  @AfterEach
+  public void shutdown() {
+    this.instance.close();
+  }
 
-	@EnableAdminServer
-	@EnableAutoConfiguration
-	@SpringBootConfiguration
-	@EnableWebFluxSecurity
-	public static class TestAdminApplication {
+  @EnableAdminServer
+  @EnableAutoConfiguration
+  @SpringBootConfiguration
+  @EnableWebFluxSecurity
+  public static class TestAdminApplication {
 
-		@Bean
-		public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-			return http.authorizeExchange().anyExchange().permitAll().and().csrf().disable().build();
-		}
-
-	}
-
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+      return http.authorizeExchange().anyExchange().permitAll().and().csrf().disable().build();
+    }
+  }
 }

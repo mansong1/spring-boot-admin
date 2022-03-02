@@ -15,87 +15,87 @@
  */
 
 import sbaConfig from '@/sba-config'
-import {VIEW_GROUP} from './views';
+import { VIEW_GROUP } from './views'
 
-import remove from 'lodash/remove';
+import remove from 'lodash/remove'
 
 const createTextVNode = (label) => {
   return {
-    render() {
+    render () {
       return this._v(this.$t(label))
     }
   }
-};
+}
 
 export default class ViewRegistry {
-  constructor() {
-    this._views = [];
-    this._redirects = [];
+  constructor () {
+    this._views = []
+    this._redirects = []
   }
 
-  get views() {
-    return this._views;
+  get views () {
+    return this._views
   }
 
-  get routes() {
+  get routes () {
     return [
       ...this._toRoutes(this._views, v => v.path && !v.parent),
       ...this._redirects
     ]
   }
 
-  getViewByName(name) {
-    return this._views.find(v => v.name === name);
+  getViewByName (name) {
+    return this._views.find(v => v.name === name)
   }
 
-  addView(...views) {
-    views.forEach(view => this._addView(view));
+  addView (...views) {
+    views.forEach(view => this._addView(view))
   }
 
-  addRedirect(path, redirect) {
+  addRedirect (path, redirect) {
     if (typeof redirect === 'string') {
-      this._redirects.push({path, redirect: {name: redirect}});
+      this._redirects.push({ path, redirect: { name: redirect } })
     } else {
-      this._redirects.push({path, redirect});
+      this._redirects.push({ path, redirect })
     }
   }
 
-  _addView(view) {
+  _addView (view) {
     if (view.label && !view.handle) {
-      view.handle = createTextVNode(view.label);
+      view.handle = createTextVNode(view.label)
     }
     if (!view.group) {
-      view.group = VIEW_GROUP.NONE;
+      view.group = VIEW_GROUP.NONE
     }
 
     if (!view.isEnabled) {
       view.isEnabled = () => {
-        let viewSettings = sbaConfig.uiSettings.viewSettings.find(vs => vs.name === view.name);
-        return (!viewSettings || viewSettings.enabled === true);
+        const viewSettings = sbaConfig.uiSettings.viewSettings.find(vs => vs.name === view.name)
+        return (!viewSettings || viewSettings.enabled === true)
       }
     }
-    this._removeExistingView(view);
-    this._views.push(view);
+    this._removeExistingView(view)
+    this._views.push(view)
   }
 
-  _removeExistingView(view) {
+  _removeExistingView (view) {
     remove(this._views, (v) => {
       return v.name === view.name && v.group === view.group
-    });
+    })
   }
 
-  _toRoutes(views, filter) {
+  _toRoutes (views, filter) {
     return views.filter(filter).map(
       p => {
-        const children = this._toRoutes(views, v => v.parent === p.name);
+        const children = this._toRoutes(views, v => v.parent === p.name)
         return ({
           path: p.path,
           name: p.name,
           component: p.component,
           props: p.props,
-          meta: {view: p},
+          meta: { view: p },
           children
-        });
+        })
       }
     )
   }

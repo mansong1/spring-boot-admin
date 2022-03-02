@@ -22,11 +22,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(classes = { SpringBootAdminHazelcastApplication.class })
+@SpringBootTest(classes = {SpringBootAdminHazelcastApplication.class})
 public class SpringBootAdminHazelcastApplicationTest {
 
-	@Test
-	public void contextLoads() {
-	}
-
+  @Test
+  public void contextLoads() {}
 }

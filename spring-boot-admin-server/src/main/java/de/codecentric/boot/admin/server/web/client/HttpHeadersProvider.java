@@ -16,18 +16,16 @@
 
 package de.codecentric.boot.admin.server.web.client;
 
+import de.codecentric.boot.admin.server.domain.entities.Instance;
 import org.springframework.http.HttpHeaders;
 
-import de.codecentric.boot.admin.server.domain.entities.Instance;
-
 /**
- * Is responsible to provide the {@link HttpHeaders} used to interact with the given
- * {@link Instance}.
+ * Is responsible to provide the {@link HttpHeaders} used to interact with the given {@link
+ * Instance}.
  *
  * @author Johannes Edmeier
  */
 public interface HttpHeadersProvider {
 
-	HttpHeaders getHeaders(Instance instance);
-
+  HttpHeaders getHeaders(Instance instance);
 }

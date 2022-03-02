@@ -18,7 +18,6 @@ package de.codecentric.boot.admin.server.utils.jackson;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceEndpointsDetectedEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
@@ -32,15 +31,24 @@ import de.codecentric.boot.admin.server.domain.events.InstanceStatusChangedEvent
  *
  * @author Stefan Rempfer
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "type")
 @JsonSubTypes({
-		@JsonSubTypes.Type(value = InstanceEndpointsDetectedEvent.class, name = InstanceEndpointsDetectedEvent.TYPE),
-		@JsonSubTypes.Type(value = InstanceRegistrationUpdatedEvent.class,
-				name = InstanceRegistrationUpdatedEvent.TYPE),
-		@JsonSubTypes.Type(value = InstanceInfoChangedEvent.class, name = InstanceInfoChangedEvent.TYPE),
-		@JsonSubTypes.Type(value = InstanceDeregisteredEvent.class, name = InstanceDeregisteredEvent.TYPE),
-		@JsonSubTypes.Type(value = InstanceRegisteredEvent.class, name = InstanceRegisteredEvent.TYPE),
-		@JsonSubTypes.Type(value = InstanceStatusChangedEvent.class, name = InstanceStatusChangedEvent.TYPE) })
-public abstract class InstanceEventMixin {
-
-}
+  @JsonSubTypes.Type(
+      value = InstanceEndpointsDetectedEvent.class,
+      name = InstanceEndpointsDetectedEvent.TYPE),
+  @JsonSubTypes.Type(
+      value = InstanceRegistrationUpdatedEvent.class,
+      name = InstanceRegistrationUpdatedEvent.TYPE),
+  @JsonSubTypes.Type(value = InstanceInfoChangedEvent.class, name = InstanceInfoChangedEvent.TYPE),
+  @JsonSubTypes.Type(
+      value = InstanceDeregisteredEvent.class,
+      name = InstanceDeregisteredEvent.TYPE),
+  @JsonSubTypes.Type(value = InstanceRegisteredEvent.class, name = InstanceRegisteredEvent.TYPE),
+  @JsonSubTypes.Type(
+      value = InstanceStatusChangedEvent.class,
+      name = InstanceStatusChangedEvent.TYPE)
+})
+public abstract class InstanceEventMixin {}

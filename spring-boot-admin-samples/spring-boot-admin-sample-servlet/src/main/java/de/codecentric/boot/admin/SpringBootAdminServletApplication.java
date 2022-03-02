@@ -16,6 +16,10 @@
 
 package de.codecentric.boot.admin;
 
+import de.codecentric.boot.admin.server.config.EnableAdminServer;
+import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
+import de.codecentric.boot.admin.server.web.client.HttpHeadersProvider;
+import de.codecentric.boot.admin.server.web.client.InstanceExchangeFilterFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -35,72 +39,73 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import de.codecentric.boot.admin.server.config.EnableAdminServer;
-import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
-import de.codecentric.boot.admin.server.web.client.HttpHeadersProvider;
-import de.codecentric.boot.admin.server.web.client.InstanceExchangeFilterFunction;
-
 @Configuration(proxyBeanMethods = false)
 @EnableAutoConfiguration
 @EnableAdminServer
-@Import({ SecurityPermitAllConfig.class, SecuritySecureConfig.class, NotifierConfig.class })
+@Import({SecurityPermitAllConfig.class, SecuritySecureConfig.class, NotifierConfig.class})
 @Lazy(false)
 public class SpringBootAdminServletApplication {
 
-	private static final Logger log = LoggerFactory.getLogger(SpringBootAdminServletApplication.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(SpringBootAdminServletApplication.class);
 
-	public static void main(String[] args) {
-		SpringApplication app = new SpringApplication(SpringBootAdminServletApplication.class);
-		app.setApplicationStartup(new BufferingApplicationStartup(1500));
-		app.run(args);
-	}
+  public static void main(String[] args) {
+    SpringApplication app = new SpringApplication(SpringBootAdminServletApplication.class);
+    app.setApplicationStartup(new BufferingApplicationStartup(1500));
+    app.run(args);
+  }
 
-	// tag::customization-instance-exchange-filter-function[]
-	@Bean
-	public InstanceExchangeFilterFunction auditLog() {
-		return (instance, request, next) -> next.exchange(request).doOnSubscribe((s) -> {
-			if (HttpMethod.DELETE.equals(request.method()) || HttpMethod.POST.equals(request.method())) {
-				log.info("{} for {} on {}", request.method(), instance.getId(), request.url());
-			}
-		});
-	}
-	// end::customization-instance-exchange-filter-function[]
+  // tag::customization-instance-exchange-filter-function[]
+  @Bean
+  public InstanceExchangeFilterFunction auditLog() {
+    return (instance, request, next) ->
+        next.exchange(request)
+            .doOnSubscribe(
+                (s) -> {
+                  if (HttpMethod.DELETE.equals(request.method())
+                      || HttpMethod.POST.equals(request.method())) {
+                    log.info("{} for {} on {}", request.method(), instance.getId(), request.url());
+                  }
+                });
+  }
+  // end::customization-instance-exchange-filter-function[]
 
-	@Bean
-	public CustomNotifier customNotifier(InstanceRepository repository) {
-		return new CustomNotifier(repository);
-	}
+  @Bean
+  public CustomNotifier customNotifier(InstanceRepository repository) {
+    return new CustomNotifier(repository);
+  }
 
-	@Bean
-	public CustomEndpoint customEndpoint() {
-		return new CustomEndpoint();
-	}
+  @Bean
+  public CustomEndpoint customEndpoint() {
+    return new CustomEndpoint();
+  }
 
-	// tag::customization-http-headers-providers[]
-	@Bean
-	public HttpHeadersProvider customHttpHeadersProvider() {
-		return (instance) -> {
-			HttpHeaders httpHeaders = new HttpHeaders();
-			httpHeaders.add("X-CUSTOM", "My Custom Value");
-			return httpHeaders;
-		};
-	}
-	// end::customization-http-headers-providers[]
+  // tag::customization-http-headers-providers[]
+  @Bean
+  public HttpHeadersProvider customHttpHeadersProvider() {
+    return (instance) -> {
+      HttpHeaders httpHeaders = new HttpHeaders();
+      httpHeaders.add("X-CUSTOM", "My Custom Value");
+      return httpHeaders;
+    };
+  }
+  // end::customization-http-headers-providers[]
 
-	@Bean
-	public HttpTraceRepository httpTraceRepository() {
-		return new InMemoryHttpTraceRepository();
-	}
+  @Bean
+  public HttpTraceRepository httpTraceRepository() {
+    return new InMemoryHttpTraceRepository();
+  }
 
-	@Bean
-	public AuditEventRepository auditEventRepository() {
-		return new InMemoryAuditEventRepository();
-	}
+  @Bean
+  public AuditEventRepository auditEventRepository() {
+    return new InMemoryAuditEventRepository();
+  }
 
-	@Bean
-	public EmbeddedDatabase dataSource() {
-		return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL)
-				.addScript("org/springframework/session/jdbc/schema-hsqldb.sql").build();
-	}
-
+  @Bean
+  public EmbeddedDatabase dataSource() {
+    return new EmbeddedDatabaseBuilder()
+        .setType(EmbeddedDatabaseType.HSQL)
+        .addScript("org/springframework/session/jdbc/schema-hsqldb.sql")
+        .build();
+  }
 }

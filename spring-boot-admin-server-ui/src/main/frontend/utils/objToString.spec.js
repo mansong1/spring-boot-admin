@@ -17,7 +17,6 @@
 import objToString from './objToString'
 
 describe('objToString should', () => {
-
   it('return the input string for normal text', () => {
     const obj = {
       a: 'start',
@@ -31,9 +30,9 @@ describe('objToString should', () => {
         i: undefined,
         j: {},
         k: [1],
-        l: [{a:1, b:'foo'}, {b:2}]
+        l: [{ a: 1, b: 'foo' }, { b: 2 }]
       }
-    };
+    }
     const str = `a: start
 b: 1
 c: true
@@ -56,8 +55,7 @@ e:
       a: 1
       b: foo
     -
-      b: 2`;
-    expect(objToString(obj)).toBe(str);
-  });
-
-});
+      b: 2`
+    expect(objToString(obj)).toBe(str)
+  })
+})

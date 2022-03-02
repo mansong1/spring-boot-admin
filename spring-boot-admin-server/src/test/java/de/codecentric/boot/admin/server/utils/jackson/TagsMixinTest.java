@@ -16,13 +16,16 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.codecentric.boot.admin.server.domain.values.Tags;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,46 +34,43 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
-import de.codecentric.boot.admin.server.domain.values.Tags;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-
 public class TagsMixinTest {
 
-	private final ObjectMapper objectMapper;
+  private final ObjectMapper objectMapper;
 
-	private JacksonTester<Tags> jsonTester;
+  private JacksonTester<Tags> jsonTester;
 
-	public TagsMixinTest() {
-		AdminServerModule adminServerModule = new AdminServerModule(new String[] { ".*password$" });
-		JavaTimeModule javaTimeModule = new JavaTimeModule();
-		objectMapper = Jackson2ObjectMapperBuilder.json().modules(adminServerModule, javaTimeModule).build();
-	}
+  public TagsMixinTest() {
+    AdminServerModule adminServerModule = new AdminServerModule(new String[] {".*password$"});
+    JavaTimeModule javaTimeModule = new JavaTimeModule();
+    objectMapper =
+        Jackson2ObjectMapperBuilder.json().modules(adminServerModule, javaTimeModule).build();
+  }
 
-	@BeforeEach
-	public void setup() {
-		JacksonTester.initFields(this, objectMapper);
-	}
+  @BeforeEach
+  public void setup() {
+    JacksonTester.initFields(this, objectMapper);
+  }
 
-	@Test
-	public void verifyDeserialize() throws JSONException, JsonProcessingException {
-		String json = new JSONObject().put("env", "test").put("foo", "bar").toString();
+  @Test
+  public void verifyDeserialize() throws JSONException, JsonProcessingException {
+    String json = new JSONObject().put("env", "test").put("foo", "bar").toString();
 
-		Tags tags = objectMapper.readValue(json, Tags.class);
-		assertThat(tags).isNotNull();
-		assertThat(tags.getValues()).containsOnly(entry("env", "test"), entry("foo", "bar"));
-	}
+    Tags tags = objectMapper.readValue(json, Tags.class);
+    assertThat(tags).isNotNull();
+    assertThat(tags.getValues()).containsOnly(entry("env", "test"), entry("foo", "bar"));
+  }
 
-	@Test
-	public void verifySerialize() throws IOException {
-		Map<String, Object> data = new HashMap<>();
-		data.put("env", "test");
-		data.put("foo", "bar");
-		Tags tags = Tags.from(data);
+  @Test
+  public void verifySerialize() throws IOException {
+    Map<String, Object> data = new HashMap<>();
+    data.put("env", "test");
+    data.put("foo", "bar");
+    Tags tags = Tags.from(data);
 
-		JsonContent<Tags> jsonContent = jsonTester.write(tags);
-		assertThat(jsonContent).extractingJsonPathMapValue("$").containsOnly(entry("env", "test"), entry("foo", "bar"));
-	}
-
+    JsonContent<Tags> jsonContent = jsonTester.write(tags);
+    assertThat(jsonContent)
+        .extractingJsonPathMapValue("$")
+        .containsOnly(entry("env", "test"), entry("foo", "bar"));
+  }
 }

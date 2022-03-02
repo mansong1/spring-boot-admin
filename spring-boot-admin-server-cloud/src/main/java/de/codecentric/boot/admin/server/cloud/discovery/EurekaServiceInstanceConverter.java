@@ -16,14 +16,12 @@
 
 package de.codecentric.boot.admin.server.cloud.discovery;
 
-import java.net.URI;
-
 import com.netflix.appinfo.InstanceInfo;
+import de.codecentric.boot.admin.server.domain.entities.Instance;
+import java.net.URI;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.netflix.eureka.EurekaServiceInstance;
 import org.springframework.util.StringUtils;
-
-import de.codecentric.boot.admin.server.domain.entities.Instance;
 
 /**
  * Converts {@link EurekaServiceInstance}s to {@link Instance}s
@@ -32,18 +30,17 @@ import de.codecentric.boot.admin.server.domain.entities.Instance;
  */
 public class EurekaServiceInstanceConverter extends DefaultServiceInstanceConverter {
 
-	@Override
-	protected URI getHealthUrl(ServiceInstance instance) {
-		if (!(instance instanceof EurekaServiceInstance)) {
-			return super.getHealthUrl(instance);
-		}
+  @Override
+  protected URI getHealthUrl(ServiceInstance instance) {
+    if (!(instance instanceof EurekaServiceInstance)) {
+      return super.getHealthUrl(instance);
+    }
 
-		InstanceInfo instanceInfo = ((EurekaServiceInstance) instance).getInstanceInfo();
-		String healthUrl = instanceInfo.getSecureHealthCheckUrl();
-		if (!StringUtils.hasText(healthUrl)) {
-			healthUrl = instanceInfo.getHealthCheckUrl();
-		}
-		return URI.create(healthUrl);
-	}
-
+    InstanceInfo instanceInfo = ((EurekaServiceInstance) instance).getInstanceInfo();
+    String healthUrl = instanceInfo.getSecureHealthCheckUrl();
+    if (!StringUtils.hasText(healthUrl)) {
+      healthUrl = instanceInfo.getHealthCheckUrl();
+    }
+    return URI.create(healthUrl);
+  }
 }

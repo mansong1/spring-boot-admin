@@ -18,12 +18,11 @@ package de.codecentric.boot.admin.server.web.client.exception;
 
 public class ResolveInstanceException extends InstanceWebClientException {
 
-	public ResolveInstanceException(String message) {
-		super(message);
-	}
+  public ResolveInstanceException(String message) {
+    super(message);
+  }
 
-	public ResolveInstanceException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
+  public ResolveInstanceException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

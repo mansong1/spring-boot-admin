@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-import ResizeObserver from 'resize-observer-polyfill';
+import ResizeObserver from 'resize-observer-polyfill'
 
-const observers = new WeakMap();
+const observers = new WeakMap()
 
 const bind = (el, binding) => {
-  unbind(el);
-  const observer = new ResizeObserver(binding.value);
-  observer.observe(el);
-  observers.set(el, observer);
-
-};
+  unbind(el)
+  const observer = new ResizeObserver(binding.value)
+  observer.observe(el)
+  observers.set(el, observer)
+}
 
 const unbind = (el) => {
-  const observer = observers.get(el);
+  const observer = observers.get(el)
   if (observer) {
-    observer.disconnect();
-    observers.delete(el);
+    observer.disconnect()
+    observers.delete(el)
   }
-};
+}
 
 export default {
   bind,
-  update(el, binding) {
+  update (el, binding) {
     if (binding.value === binding.oldValue) {
       return
     }
@@ -44,4 +43,3 @@ export default {
   },
   unbind
 }
-

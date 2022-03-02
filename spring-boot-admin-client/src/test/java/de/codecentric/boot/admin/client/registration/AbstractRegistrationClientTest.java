@@ -16,14 +16,6 @@
 
 package de.codecentric.boot.admin.client.registration;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
-import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.created;
 import static com.github.tomakehurst.wiremock.client.WireMock.delete;
 import static com.github.tomakehurst.wiremock.client.WireMock.deleteRequestedFor;
@@ -37,65 +29,83 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.ResponseDefinitionBuilder;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 public abstract class AbstractRegistrationClientTest {
 
-	private final WireMockServer wireMock = new WireMockServer(
-			options().dynamicPort().notifier(new ConsoleNotifier(true)));
+  private final WireMockServer wireMock =
+      new WireMockServer(options().dynamicPort().notifier(new ConsoleNotifier(true)));
 
-	private final Application application = Application.create("AppName").managementUrl("http://localhost:8080/mgmt")
-			.healthUrl("http://localhost:8080/health").serviceUrl("http://localhost:8080").build();
+  private final Application application =
+      Application.create("AppName")
+          .managementUrl("http://localhost:8080/mgmt")
+          .healthUrl("http://localhost:8080/health")
+          .serviceUrl("http://localhost:8080")
+          .build();
 
-	private RegistrationClient registrationClient;
+  private RegistrationClient registrationClient;
 
-	public void setUp(RegistrationClient registrationClient) {
-		this.registrationClient = registrationClient;
-	}
+  public void setUp(RegistrationClient registrationClient) {
+    this.registrationClient = registrationClient;
+  }
 
-	@BeforeEach
-	void setUpWiremock() {
-		wireMock.start();
-	}
+  @BeforeEach
+  void setUpWiremock() {
+    wireMock.start();
+  }
 
-	@AfterEach
-	void tearDown() {
-		wireMock.stop();
-	}
+  @AfterEach
+  void tearDown() {
+    wireMock.stop();
+  }
 
-	@Test
-	public void register_should_return_id_when_successful() {
-		ResponseDefinitionBuilder response = created().withHeader("Content-Type", "application/json")
-				.withHeader("Location", this.wireMock.url("/instances/abcdef")).withBody("{ \"id\" : \"-id-\" }");
-		this.wireMock.stubFor(post(urlEqualTo("/instances")).willReturn(response));
+  @Test
+  public void register_should_return_id_when_successful() {
+    ResponseDefinitionBuilder response =
+        created()
+            .withHeader("Content-Type", "application/json")
+            .withHeader("Location", this.wireMock.url("/instances/abcdef"))
+            .withBody("{ \"id\" : \"-id-\" }");
+    this.wireMock.stubFor(post(urlEqualTo("/instances")).willReturn(response));
 
-		assertThat(this.registrationClient.register(this.wireMock.url("/instances"), this.application))
-				.isEqualTo("-id-");
+    assertThat(this.registrationClient.register(this.wireMock.url("/instances"), this.application))
+        .isEqualTo("-id-");
 
-		RequestPatternBuilder expectedRequest = postRequestedFor(urlEqualTo("/instances"))
-				.withHeader("Accept", equalTo("application/json"))
-				.withHeader("Content-Type", equalTo("application/json"));
-		this.wireMock.verify(expectedRequest);
-	}
+    RequestPatternBuilder expectedRequest =
+        postRequestedFor(urlEqualTo("/instances"))
+            .withHeader("Accept", equalTo("application/json"))
+            .withHeader("Content-Type", equalTo("application/json"));
+    this.wireMock.verify(expectedRequest);
+  }
 
-	@Test
-	public void register_should_throw() {
-		this.wireMock.stubFor(post(urlEqualTo("/instances")).willReturn(serverError()));
+  @Test
+  public void register_should_throw() {
+    this.wireMock.stubFor(post(urlEqualTo("/instances")).willReturn(serverError()));
 
-		assertThatThrownBy(() -> this.registrationClient.register(this.wireMock.url("/instances"), this.application))
-				.isInstanceOf(Exception.class);
-	}
+    assertThatThrownBy(
+            () ->
+                this.registrationClient.register(this.wireMock.url("/instances"), this.application))
+        .isInstanceOf(Exception.class);
+  }
 
-	@Test
-	public void deregister() {
-		this.wireMock.stubFor(delete(urlEqualTo("/instances/-id-")).willReturn(ok()));
-		this.registrationClient.deregister(this.wireMock.url("/instances"), "-id-");
-		this.wireMock.verify(deleteRequestedFor(urlEqualTo("/instances/-id-")));
-	}
+  @Test
+  public void deregister() {
+    this.wireMock.stubFor(delete(urlEqualTo("/instances/-id-")).willReturn(ok()));
+    this.registrationClient.deregister(this.wireMock.url("/instances"), "-id-");
+    this.wireMock.verify(deleteRequestedFor(urlEqualTo("/instances/-id-")));
+  }
 
-	@Test
-	public void deregister_should_trow() {
-		this.wireMock.stubFor(delete(urlEqualTo("/instances/-id-")).willReturn(serverError()));
-		assertThatThrownBy(() -> this.registrationClient.deregister(this.wireMock.url("/instances"), "-id-"))
-				.isInstanceOf(Exception.class);
-	}
-
+  @Test
+  public void deregister_should_trow() {
+    this.wireMock.stubFor(delete(urlEqualTo("/instances/-id-")).willReturn(serverError()));
+    assertThatThrownBy(
+            () -> this.registrationClient.deregister(this.wireMock.url("/instances"), "-id-"))
+        .isInstanceOf(Exception.class);
+  }
 }

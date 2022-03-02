@@ -27,4 +27,4 @@ module.exports = {
       plugins: ['babel-plugin-transform-require-context', 'require-context-hook']
     }
   }
-};
+}

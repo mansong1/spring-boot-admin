@@ -16,47 +16,46 @@
 
 package de.codecentric.boot.admin.server.eventstore;
 
-import java.util.List;
-
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("docker")
 public class HazelcastEventStoreWithClientConfigTest extends AbstractEventStoreTest {
 
-	@Container
-	private static final GenericContainer<?> hazelcastServer = new GenericContainer<>("hazelcast/hazelcast:4.2.2")
-			.withExposedPorts(5701);
+  @Container
+  private static final GenericContainer<?> hazelcastServer =
+      new GenericContainer<>("hazelcast/hazelcast:4.2.2").withExposedPorts(5701);
 
-	private final HazelcastInstance hazelcast;
+  private final HazelcastInstance hazelcast;
 
-	public HazelcastEventStoreWithClientConfigTest() {
-		this.hazelcast = createHazelcastInstance();
-	}
+  public HazelcastEventStoreWithClientConfigTest() {
+    this.hazelcast = createHazelcastInstance();
+  }
 
-	@Override
-	protected InstanceEventStore createStore(int maxLogSizePerAggregate) {
-		IMap<InstanceId, List<InstanceEvent>> eventLog = this.hazelcast.getMap("testList" + System.currentTimeMillis());
-		return new HazelcastEventStore(maxLogSizePerAggregate, eventLog);
-	}
+  @Override
+  protected InstanceEventStore createStore(int maxLogSizePerAggregate) {
+    IMap<InstanceId, List<InstanceEvent>> eventLog =
+        this.hazelcast.getMap("testList" + System.currentTimeMillis());
+    return new HazelcastEventStore(maxLogSizePerAggregate, eventLog);
+  }
 
-	private HazelcastInstance createHazelcastInstance() {
-		String address = hazelcastServer.getContainerIpAddress() + ":" + hazelcastServer.getMappedPort(5701);
+  private HazelcastInstance createHazelcastInstance() {
+    String address =
+        hazelcastServer.getContainerIpAddress() + ":" + hazelcastServer.getMappedPort(5701);
 
-		ClientConfig clientConfig = new ClientConfig();
-		clientConfig.getNetworkConfig().addAddress(address);
+    ClientConfig clientConfig = new ClientConfig();
+    clientConfig.getNetworkConfig().addAddress(address);
 
-		return HazelcastClient.newHazelcastClient(clientConfig);
-	}
-
+    return HazelcastClient.newHazelcastClient(clientConfig);
+  }
 }

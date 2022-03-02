@@ -1,15 +1,15 @@
-import SbaStatus from './sba-status.vue';
+import SbaStatus from './sba-status.vue'
 
 export default {
   component: SbaStatus,
-  title: 'SBA Components/Status',
-};
+  title: 'SBA Components/Status'
+}
 
 const Template = (args, { argTypes }) => ({
   components: { SbaStatus },
   props: Object.keys(argTypes),
-  template: '<sba-status v-bind="$props" />',
-});
+  template: '<sba-status v-bind="$props" />'
+})
 
 export const Status = Template.bind({})
 

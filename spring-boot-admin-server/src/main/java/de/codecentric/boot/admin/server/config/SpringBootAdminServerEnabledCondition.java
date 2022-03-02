@@ -24,27 +24,28 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
- * This condition checks if the sever should be enabled. Property
- * spring.boot.admin.server.enabled is checked.
+ * This condition checks if the sever should be enabled. Property spring.boot.admin.server.enabled
+ * is checked.
  */
 public class SpringBootAdminServerEnabledCondition extends SpringBootCondition {
 
-	@Override
-	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata annotatedTypeMetadata) {
-		AdminServerProperties serverProperties = getClientProperties(context);
+  @Override
+  public ConditionOutcome getMatchOutcome(
+      ConditionContext context, AnnotatedTypeMetadata annotatedTypeMetadata) {
+    AdminServerProperties serverProperties = getClientProperties(context);
 
-		if (!serverProperties.getServer().isEnabled()) {
-			return ConditionOutcome
-					.noMatch("Spring Boot Server is disabled, because 'spring.boot.admin.server.enabled' is false.");
-		}
+    if (!serverProperties.getServer().isEnabled()) {
+      return ConditionOutcome.noMatch(
+          "Spring Boot Server is disabled, because 'spring.boot.admin.server.enabled' is false.");
+    }
 
-		return ConditionOutcome.match();
-	}
+    return ConditionOutcome.match();
+  }
 
-	private AdminServerProperties getClientProperties(ConditionContext context) {
-		AdminServerProperties serverProperties = new AdminServerProperties();
-		Binder.get(context.getEnvironment()).bind("spring.boot.admin", Bindable.ofInstance(serverProperties));
-		return serverProperties;
-	}
-
+  private AdminServerProperties getClientProperties(ConditionContext context) {
+    AdminServerProperties serverProperties = new AdminServerProperties();
+    Binder.get(context.getEnvironment())
+        .bind("spring.boot.admin", Bindable.ofInstance(serverProperties));
+    return serverProperties;
+  }
 }

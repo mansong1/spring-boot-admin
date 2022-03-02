@@ -16,10 +16,9 @@
 
 package de.codecentric.boot.admin.server.services;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import java.util.logging.Level;
-
 import javax.annotation.Nullable;
-
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,51 +28,53 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-
 public abstract class AbstractEventHandler<T extends InstanceEvent> {
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final Publisher<InstanceEvent> publisher;
+  private final Publisher<InstanceEvent> publisher;
 
-	private final Class<T> eventType;
+  private final Class<T> eventType;
 
-	@Nullable
-	private Disposable subscription;
+  @Nullable private Disposable subscription;
 
-	@Nullable
-	private Scheduler scheduler;
+  @Nullable private Scheduler scheduler;
 
-	protected AbstractEventHandler(Publisher<InstanceEvent> publisher, Class<T> eventType) {
-		this.publisher = publisher;
-		this.eventType = eventType;
-	}
+  protected AbstractEventHandler(Publisher<InstanceEvent> publisher, Class<T> eventType) {
+    this.publisher = publisher;
+    this.eventType = eventType;
+  }
 
-	public void start() {
-		this.scheduler = this.createScheduler();
-		this.subscription = Flux.from(this.publisher).subscribeOn(this.scheduler).log(this.log.getName(), Level.FINEST)
-				.doOnSubscribe((s) -> this.log.debug("Subscribed to {} events", this.eventType)).ofType(this.eventType)
-				.cast(this.eventType).transform(this::handle)
-				.retryWhen(Retry.indefinitely().doBeforeRetry((s) -> this.log.warn("Unexpected error", s.failure())))
-				.subscribe();
-	}
+  public void start() {
+    this.scheduler = this.createScheduler();
+    this.subscription =
+        Flux.from(this.publisher)
+            .subscribeOn(this.scheduler)
+            .log(this.log.getName(), Level.FINEST)
+            .doOnSubscribe((s) -> this.log.debug("Subscribed to {} events", this.eventType))
+            .ofType(this.eventType)
+            .cast(this.eventType)
+            .transform(this::handle)
+            .retryWhen(
+                Retry.indefinitely()
+                    .doBeforeRetry((s) -> this.log.warn("Unexpected error", s.failure())))
+            .subscribe();
+  }
 
-	protected abstract Publisher<Void> handle(Flux<T> publisher);
+  protected abstract Publisher<Void> handle(Flux<T> publisher);
 
-	protected Scheduler createScheduler() {
-		return Schedulers.newSingle(this.getClass().getSimpleName());
-	}
+  protected Scheduler createScheduler() {
+    return Schedulers.newSingle(this.getClass().getSimpleName());
+  }
 
-	public void stop() {
-		if (this.subscription != null) {
-			this.subscription.dispose();
-			this.subscription = null;
-		}
-		if (this.scheduler != null) {
-			this.scheduler.dispose();
-			this.scheduler = null;
-		}
-	}
-
+  public void stop() {
+    if (this.subscription != null) {
+      this.subscription.dispose();
+      this.subscription = null;
+    }
+    if (this.scheduler != null) {
+      this.scheduler.dispose();
+      this.scheduler = null;
+    }
+  }
 }

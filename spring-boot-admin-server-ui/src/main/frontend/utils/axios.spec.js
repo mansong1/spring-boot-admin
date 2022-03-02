@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {redirectOn401} from './axios';
+import { redirectOn401 } from './axios'
 
 describe('redirectOn401', () => {
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe('redirectOn401', () => {
         assign: jest.fn(),
         href: 'http://example.com/'
       }
-    });
+    })
   })
 
   it('should not redirect on 500', async () => {
@@ -32,48 +32,46 @@ describe('redirectOn401', () => {
       response: {
         status: 500
       }
-    };
-
-    try {
-      await redirectOn401()(error);
-    } catch (e) {
-      expect(e).toBe(error);
     }
 
-    expect(window.location.assign).not.toBeCalled();
-  });
+    try {
+      await redirectOn401()(error)
+    } catch (e) {
+      expect(e).toBe(error)
+    }
+
+    expect(window.location.assign).not.toBeCalled()
+  })
 
   it('should redirect on 401', async () => {
-
-
     const error = {
       response: {
         status: 401
       }
-    };
-
-    try {
-      await redirectOn401()(error);
-    } catch (e) {
-      expect(e).toBe(error);
     }
 
-    expect(window.location.assign).toBeCalledWith('login?redirectTo=http%3A%2F%2Fexample.com%2F');
-  });
+    try {
+      await redirectOn401()(error)
+    } catch (e) {
+      expect(e).toBe(error)
+    }
+
+    expect(window.location.assign).toBeCalledWith('login?redirectTo=http%3A%2F%2Fexample.com%2F')
+  })
 
   it('should not redirect on 401 for predicate yields false', async () => {
     const error = {
       response: {
         status: 401
       }
-    };
-
-    try {
-      await redirectOn401(() => false)(error);
-    } catch (e) {
-      expect(e).toBe(error);
     }
 
-    expect(window.location.assign).not.toBeCalled();
-  });
-});
+    try {
+      await redirectOn401(() => false)(error)
+    } catch (e) {
+      expect(e).toBe(error)
+    }
+
+    expect(window.location.assign).not.toBeCalled()
+  })
+})

@@ -16,26 +16,23 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import static java.util.Collections.singleton;
+
+import de.codecentric.boot.admin.server.domain.entities.Instance;
+import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.annotation.Nullable;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import reactor.core.publisher.Mono;
-
-import de.codecentric.boot.admin.server.domain.entities.Instance;
-import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-
-import static java.util.Collections.singleton;
 
 /**
  * Notifier sending emails using thymleaf templates.
@@ -44,128 +41,116 @@ import static java.util.Collections.singleton;
  */
 public class MailNotifier extends AbstractStatusChangeNotifier {
 
-	private final JavaMailSender mailSender;
+  private final JavaMailSender mailSender;
 
-	private final TemplateEngine templateEngine;
+  private final TemplateEngine templateEngine;
 
-	/**
-	 * recipients of the mail
-	 */
-	private String[] to = { "root@localhost" };
+  /** recipients of the mail */
+  private String[] to = {"root@localhost"};
 
-	/**
-	 * cc-recipients of the mail
-	 */
-	private String[] cc = {};
+  /** cc-recipients of the mail */
+  private String[] cc = {};
 
-	/**
-	 * sender of the change
-	 */
-	private String from = "Spring Boot Admin <noreply@localhost>";
+  /** sender of the change */
+  private String from = "Spring Boot Admin <noreply@localhost>";
 
-	/**
-	 * Additional properties to be set for the template
-	 */
-	private Map<String, Object> additionalProperties = new HashMap<>();
+  /** Additional properties to be set for the template */
+  private Map<String, Object> additionalProperties = new HashMap<>();
 
-	/**
-	 * Base-URL used for hyperlinks in mail
-	 */
-	@Nullable
-	private String baseUrl;
+  /** Base-URL used for hyperlinks in mail */
+  @Nullable private String baseUrl;
 
-	/**
-	 * Thymleaf template for mail
-	 */
-	private String template = "classpath:/META-INF/spring-boot-admin-server/mail/status-changed.html";
+  /** Thymleaf template for mail */
+  private String template = "classpath:/META-INF/spring-boot-admin-server/mail/status-changed.html";
 
-	public MailNotifier(JavaMailSender mailSender, InstanceRepository repository, TemplateEngine templateEngine) {
-		super(repository);
-		this.mailSender = mailSender;
-		this.templateEngine = templateEngine;
-	}
+  public MailNotifier(
+      JavaMailSender mailSender, InstanceRepository repository, TemplateEngine templateEngine) {
+    super(repository);
+    this.mailSender = mailSender;
+    this.templateEngine = templateEngine;
+  }
 
-	@Override
-	protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
-		return Mono.fromRunnable(() -> {
-			Context ctx = new Context();
-			ctx.setVariables(additionalProperties);
-			ctx.setVariable("baseUrl", this.baseUrl);
-			ctx.setVariable("event", event);
-			ctx.setVariable("instance", instance);
-			ctx.setVariable("lastStatus", getLastStatus(event.getInstance()));
+  @Override
+  protected Mono<Void> doNotify(InstanceEvent event, Instance instance) {
+    return Mono.fromRunnable(
+        () -> {
+          Context ctx = new Context();
+          ctx.setVariables(additionalProperties);
+          ctx.setVariable("baseUrl", this.baseUrl);
+          ctx.setVariable("event", event);
+          ctx.setVariable("instance", instance);
+          ctx.setVariable("lastStatus", getLastStatus(event.getInstance()));
 
-			try {
-				MimeMessage mimeMessage = mailSender.createMimeMessage();
-				MimeMessageHelper message = new MimeMessageHelper(mimeMessage, StandardCharsets.UTF_8.name());
-				message.setText(getBody(ctx).replaceAll("\\s+\\n", "\n"), true);
-				message.setSubject(getSubject(ctx));
-				message.setTo(this.to);
-				message.setCc(this.cc);
-				message.setFrom(this.from);
-				mailSender.send(mimeMessage);
-			}
-			catch (MessagingException ex) {
-				throw new RuntimeException("Error sending mail notification", ex);
-			}
-		});
-	}
+          try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper message =
+                new MimeMessageHelper(mimeMessage, StandardCharsets.UTF_8.name());
+            message.setText(getBody(ctx).replaceAll("\\s+\\n", "\n"), true);
+            message.setSubject(getSubject(ctx));
+            message.setTo(this.to);
+            message.setCc(this.cc);
+            message.setFrom(this.from);
+            mailSender.send(mimeMessage);
+          } catch (MessagingException ex) {
+            throw new RuntimeException("Error sending mail notification", ex);
+          }
+        });
+  }
 
-	protected String getBody(Context ctx) {
-		return templateEngine.process(this.template, ctx);
-	}
+  protected String getBody(Context ctx) {
+    return templateEngine.process(this.template, ctx);
+  }
 
-	protected String getSubject(Context ctx) {
-		return templateEngine.process(this.template, singleton("subject"), ctx).trim();
-	}
+  protected String getSubject(Context ctx) {
+    return templateEngine.process(this.template, singleton("subject"), ctx).trim();
+  }
 
-	public void setTo(String[] to) {
-		this.to = Arrays.copyOf(to, to.length);
-	}
+  public void setTo(String[] to) {
+    this.to = Arrays.copyOf(to, to.length);
+  }
 
-	public String[] getTo() {
-		return Arrays.copyOf(to, to.length);
-	}
+  public String[] getTo() {
+    return Arrays.copyOf(to, to.length);
+  }
 
-	public void setCc(String[] cc) {
-		this.cc = Arrays.copyOf(cc, cc.length);
-	}
+  public void setCc(String[] cc) {
+    this.cc = Arrays.copyOf(cc, cc.length);
+  }
 
-	public String[] getCc() {
-		return Arrays.copyOf(cc, cc.length);
-	}
+  public String[] getCc() {
+    return Arrays.copyOf(cc, cc.length);
+  }
 
-	public void setFrom(String from) {
-		this.from = from;
-	}
+  public void setFrom(String from) {
+    this.from = from;
+  }
 
-	public String getFrom() {
-		return from;
-	}
+  public String getFrom() {
+    return from;
+  }
 
-	public String getTemplate() {
-		return template;
-	}
+  public String getTemplate() {
+    return template;
+  }
 
-	public void setTemplate(String template) {
-		this.template = template;
-	}
+  public void setTemplate(String template) {
+    this.template = template;
+  }
 
-	@Nullable
-	public String getBaseUrl() {
-		return baseUrl;
-	}
+  @Nullable
+  public String getBaseUrl() {
+    return baseUrl;
+  }
 
-	public void setBaseUrl(@Nullable String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
+  public void setBaseUrl(@Nullable String baseUrl) {
+    this.baseUrl = baseUrl;
+  }
 
-	public Map<String, Object> getAdditionalProperties() {
-		return additionalProperties;
-	}
+  public Map<String, Object> getAdditionalProperties() {
+    return additionalProperties;
+  }
 
-	public void setAdditionalProperties(Map<String, Object> additionalProperties) {
-		this.additionalProperties = additionalProperties;
-	}
-
+  public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+    this.additionalProperties = additionalProperties;
+  }
 }

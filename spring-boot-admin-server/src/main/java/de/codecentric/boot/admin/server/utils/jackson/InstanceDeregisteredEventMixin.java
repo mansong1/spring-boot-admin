@@ -16,13 +16,11 @@
 
 package de.codecentric.boot.admin.server.utils.jackson;
 
-import java.time.Instant;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import java.time.Instant;
 
 /**
  * Jackson Mixin class helps in serialize/deserialize {@link InstanceDeregisteredEvent}.
@@ -31,9 +29,9 @@ import de.codecentric.boot.admin.server.domain.values.InstanceId;
  */
 public abstract class InstanceDeregisteredEventMixin {
 
-	@JsonCreator
-	public InstanceDeregisteredEventMixin(@JsonProperty("instance") InstanceId instance,
-			@JsonProperty("version") long version, @JsonProperty("timestamp") Instant timestamp) {
-	}
-
+  @JsonCreator
+  public InstanceDeregisteredEventMixin(
+      @JsonProperty("instance") InstanceId instance,
+      @JsonProperty("version") long version,
+      @JsonProperty("timestamp") Instant timestamp) {}
 }

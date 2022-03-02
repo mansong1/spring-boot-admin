@@ -16,14 +16,9 @@
 
 package de.codecentric.boot.admin.server.notify.filter;
 
-import java.time.Duration;
-import java.time.Instant;
-
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import de.codecentric.boot.admin.server.domain.entities.Instance;
 import de.codecentric.boot.admin.server.domain.entities.InstanceRepository;
@@ -32,75 +27,84 @@ import de.codecentric.boot.admin.server.domain.events.InstanceRegisteredEvent;
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import de.codecentric.boot.admin.server.domain.values.Registration;
 import de.codecentric.boot.admin.server.notify.TestNotifier;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import java.time.Duration;
+import java.time.Instant;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 public class FilteringNotifierTest {
 
-	private final Instance instance = Instance.create(InstanceId.of("-"))
-			.register(Registration.create("foo", "http://health").build());
+  private final Instance instance =
+      Instance.create(InstanceId.of("-"))
+          .register(Registration.create("foo", "http://health").build());
 
-	private final InstanceRegisteredEvent event = new InstanceRegisteredEvent(instance.getId(), instance.getVersion(),
-			instance.getRegistration());
+  private final InstanceRegisteredEvent event =
+      new InstanceRegisteredEvent(
+          instance.getId(), instance.getVersion(), instance.getRegistration());
 
-	private InstanceRepository repository;
+  private InstanceRepository repository;
 
-	@BeforeEach
-	public void setUp() {
-		repository = mock(InstanceRepository.class);
-		when(repository.find(instance.getId())).thenReturn(Mono.just(instance));
-	}
+  @BeforeEach
+  public void setUp() {
+    repository = mock(InstanceRepository.class);
+    when(repository.find(instance.getId())).thenReturn(Mono.just(instance));
+  }
 
-	@Test
-	public void test_ctor_assert() {
-		Assertions.assertThatThrownBy(() -> new FilteringNotifier(null, repository))
-				.isInstanceOf(IllegalArgumentException.class);
-	}
+  @Test
+  public void test_ctor_assert() {
+    Assertions.assertThatThrownBy(() -> new FilteringNotifier(null, repository))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
 
-	@Test
-	public void test_expired_removal() {
-		FilteringNotifier notifier = new FilteringNotifier(new TestNotifier(), repository);
-		notifier.setCleanupInterval(Duration.ZERO);
+  @Test
+  public void test_expired_removal() {
+    FilteringNotifier notifier = new FilteringNotifier(new TestNotifier(), repository);
+    notifier.setCleanupInterval(Duration.ZERO);
 
-		ApplicationNameNotificationFilter filter1 = new ApplicationNameNotificationFilter("foo",
-				Instant.now().minus(Duration.ofSeconds(1)));
-		notifier.addFilter(filter1);
-		ApplicationNameNotificationFilter filter2 = new ApplicationNameNotificationFilter("bar", null);
-		notifier.addFilter(filter2);
+    ApplicationNameNotificationFilter filter1 =
+        new ApplicationNameNotificationFilter("foo", Instant.now().minus(Duration.ofSeconds(1)));
+    notifier.addFilter(filter1);
+    ApplicationNameNotificationFilter filter2 = new ApplicationNameNotificationFilter("bar", null);
+    notifier.addFilter(filter2);
 
-		assertThat(notifier.getNotificationFilters()).containsKey(filter1.getId()).containsKey(filter2.getId());
+    assertThat(notifier.getNotificationFilters())
+        .containsKey(filter1.getId())
+        .containsKey(filter2.getId());
 
-		StepVerifier.create(notifier.notify(event)).verifyComplete();
+    StepVerifier.create(notifier.notify(event)).verifyComplete();
 
-		assertThat(notifier.getNotificationFilters()).doesNotContainKey(filter1.getId()).containsKey(filter2.getId());
+    assertThat(notifier.getNotificationFilters())
+        .doesNotContainKey(filter1.getId())
+        .containsKey(filter2.getId());
 
-		notifier.removeFilter(filter2.getId());
-		assertThat(notifier.getNotificationFilters()).doesNotContainKey(filter2.getId());
-	}
+    notifier.removeFilter(filter2.getId());
+    assertThat(notifier.getNotificationFilters()).doesNotContainKey(filter2.getId());
+  }
 
-	@Test
-	public void test_filter() {
-		TestNotifier delegate = new TestNotifier();
-		FilteringNotifier notifier = new FilteringNotifier(delegate, repository);
+  @Test
+  public void test_filter() {
+    TestNotifier delegate = new TestNotifier();
+    FilteringNotifier notifier = new FilteringNotifier(delegate, repository);
 
-		AbstractNotificationFilter trueFilter = new AbstractNotificationFilter() {
-			@Override
-			public boolean filter(InstanceEvent event, Instance instance) {
-				return true;
-			}
-		};
-		notifier.addFilter(trueFilter);
+    AbstractNotificationFilter trueFilter =
+        new AbstractNotificationFilter() {
+          @Override
+          public boolean filter(InstanceEvent event, Instance instance) {
+            return true;
+          }
+        };
+    notifier.addFilter(trueFilter);
 
-		StepVerifier.create(notifier.notify(event)).verifyComplete();
+    StepVerifier.create(notifier.notify(event)).verifyComplete();
 
-		assertThat(delegate.getEvents()).doesNotContain(event);
+    assertThat(delegate.getEvents()).doesNotContain(event);
 
-		notifier.removeFilter(trueFilter.getId());
-		StepVerifier.create(notifier.notify(event)).verifyComplete();
+    notifier.removeFilter(trueFilter.getId());
+    StepVerifier.create(notifier.notify(event)).verifyComplete();
 
-		assertThat(delegate.getEvents()).contains(event);
-	}
-
+    assertThat(delegate.getEvents()).contains(event);
+  }
 }

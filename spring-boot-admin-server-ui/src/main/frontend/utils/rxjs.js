@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {defer, tap} from 'rxjs';
+import { defer, tap } from 'rxjs'
 
 export {
   of,
@@ -40,28 +40,28 @@ export {
   ignoreElements,
   bufferTime,
   finalize
-} from 'rxjs';
+} from 'rxjs'
 
 export const doOnSubscribe = cb => source =>
   defer(() => {
-    cb();
+    cb()
     return source
-  });
+  })
 
 export const listen = (cb, execDelay = 150) => source => {
-  let handle = null;
+  let handle = null
   return source.pipe(
     doOnSubscribe(() => handle = setTimeout(() => cb('executing'), execDelay)),
     tap({
       complete: () => {
-        handle && clearTimeout(handle);
-        cb('completed');
+        handle && clearTimeout(handle)
+        cb('completed')
       },
       error: (error) => {
-        console.warn('Operation failed:', error);
-        handle && clearTimeout(handle);
-        cb('failed');
+        console.warn('Operation failed:', error)
+        handle && clearTimeout(handle)
+        cb('failed')
       }
     })
   )
-};
+}

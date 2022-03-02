@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import i18n from '@/i18n';
-import SbaPaginationNav from '@/components/sba-pagination-nav';
+import i18n from '@/i18n'
+import SbaPaginationNav from '@/components/sba-pagination-nav'
 
 export default {
   component: SbaPaginationNav,
-  title: 'SBA Components/Pagination',
-};
+  title: 'SBA Components/Pagination'
+}
 
-const Template = (args, {argTypes}) => {
+const Template = (args, { argTypes }) => {
   return ({
-    components: {SbaPaginationNav},
+    components: { SbaPaginationNav },
     props: Object.keys(argTypes),
     methods: {
-      change($event) {
-        this.current = $event;
+      change ($event) {
+        this.current = $event
       }
     },
-    data() {
+    data () {
       return {
         current: 1
       }
@@ -40,20 +40,20 @@ const Template = (args, {argTypes}) => {
       <sba-pagination-nav v-model="current" v-bind="$props" @change="change"/>
     `,
     i18n
-  });
-};
+  })
+}
 
-export const NoPages = Template.bind({});
+export const NoPages = Template.bind({})
 NoPages.args = {
-  pageCount: 0,
-};
+  pageCount: 0
+}
 
-export const OnePage = Template.bind({});
+export const OnePage = Template.bind({})
 OnePage.args = {
-  pageCount: 1,
-};
+  pageCount: 1
+}
 
-export const ManyPages = Template.bind({});
+export const ManyPages = Template.bind({})
 ManyPages.args = {
-  pageCount: 12,
-};
+  pageCount: 12
+}

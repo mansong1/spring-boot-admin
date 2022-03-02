@@ -18,7 +18,6 @@ package de.codecentric.boot.admin.server.utils.jackson;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
 
 /**
@@ -28,12 +27,11 @@ import de.codecentric.boot.admin.server.domain.values.InstanceId;
  */
 public abstract class InstanceIdMixin {
 
-	@JsonCreator
-	public static InstanceId of(String value) {
-		return InstanceId.of(value);
-	}
+  @JsonCreator
+  public static InstanceId of(String value) {
+    return InstanceId.of(value);
+  }
 
-	@JsonValue
-	public abstract String getValue();
-
+  @JsonValue
+  public abstract String getValue();
 }

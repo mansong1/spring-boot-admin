@@ -16,10 +16,9 @@
 
 package de.codecentric.boot.admin.server.domain.events;
 
-import java.time.Instant;
-
 import de.codecentric.boot.admin.server.domain.values.Endpoints;
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
+import java.time.Instant;
 
 /**
  * This event gets emitted when all instance's endpoints are discovered.
@@ -31,19 +30,19 @@ import de.codecentric.boot.admin.server.domain.values.InstanceId;
 @lombok.ToString(callSuper = true)
 public class InstanceEndpointsDetectedEvent extends InstanceEvent {
 
-	public static final String TYPE = "ENDPOINTS_DETECTED";
+  public static final String TYPE = "ENDPOINTS_DETECTED";
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private final Endpoints endpoints;
+  private final Endpoints endpoints;
 
-	public InstanceEndpointsDetectedEvent(InstanceId instance, long version, Endpoints endpoints) {
-		this(instance, version, Instant.now(), endpoints);
-	}
+  public InstanceEndpointsDetectedEvent(InstanceId instance, long version, Endpoints endpoints) {
+    this(instance, version, Instant.now(), endpoints);
+  }
 
-	public InstanceEndpointsDetectedEvent(InstanceId instance, long version, Instant timestamp, Endpoints endpoints) {
-		super(instance, version, TYPE, timestamp);
-		this.endpoints = endpoints;
-	}
-
+  public InstanceEndpointsDetectedEvent(
+      InstanceId instance, long version, Instant timestamp, Endpoints endpoints) {
+    super(instance, version, TYPE, timestamp);
+    this.endpoints = endpoints;
+  }
 }

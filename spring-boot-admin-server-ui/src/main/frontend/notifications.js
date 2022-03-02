@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 import sbaConfig from '@/sba-config'
-import {bufferTime, filter, Subject} from '@/utils/rxjs';
-import groupBy from 'lodash/groupBy';
-import values from 'lodash/values';
+import { bufferTime, filter, Subject } from '@/utils/rxjs'
+import groupBy from 'lodash/groupBy'
+import values from 'lodash/values'
 
-let granted = false;
+let granted = false
 
 const requestPermissions = async () => {
   if ('Notification' in window) {
-    granted = (window.Notification.permission === 'granted');
+    granted = (window.Notification.permission === 'granted')
     if (!granted && window.Notification.permission !== 'denied') {
-      const permission = await window.Notification.requestPermission();
+      const permission = await window.Notification.requestPermission()
       // eslint-disable-next-line require-atomic-updates
-      granted = permission === 'granted';
+      granted = permission === 'granted'
     }
   }
-};
+}
 
 const notifyForSingleChange = (application, oldApplication) => {
   return createNotification(`${application.name} is now ${application.status}`, {
@@ -39,49 +39,48 @@ const notifyForSingleChange = (application, oldApplication) => {
     icon: application.status === 'UP' ? sbaConfig.uiSettings.favicon : sbaConfig.uiSettings.faviconDanger,
     renotify: true,
     timeout: 5000
-  });
-};
+  })
+}
 
-const notifyForBulkChange = ({count, status, oldStatus}) => {
+const notifyForBulkChange = ({ count, status, oldStatus }) => {
   return createNotification(`${count} applications are now ${status}`, {
     lang: 'en',
     body: `was ${oldStatus}.`,
     icon: status === 'UP' ? sbaConfig.uiSettings.favicon : sbaConfig.uiSettings.faviconDanger,
     timeout: 5000
-  });
-};
+  })
+}
 
 const createNotification = (title, options) => {
   if (granted) {
-    const notification = new window.Notification(title, options);
+    const notification = new window.Notification(title, options)
     if (options.url !== null) {
       notification.onclick = () => {
-        window.focus();
-        window.open(options.url, '_self');
-      };
+        window.focus()
+        window.open(options.url, '_self')
+      }
     }
     if (options.timeout > 0) {
-      notification.onshow = () => setTimeout(() => notification.close(), options.timeout);
+      notification.onshow = () => setTimeout(() => notification.close(), options.timeout)
     }
   }
-};
-
+}
 
 export default {
-  install: ({applicationStore}) => {
-    requestPermissions();
+  install: ({ applicationStore }) => {
+    requestPermissions()
 
-    const queue = new Subject();
+    const queue = new Subject()
     queue.pipe(
       bufferTime(1000),
       filter(n => n.length > 0)
     ).subscribe({
       next: events => {
-        const groupedByChange = groupBy(events, event => `${event.oldApplication.status}-${event.application.status}`);
+        const groupedByChange = groupBy(events, event => `${event.oldApplication.status}-${event.application.status}`)
         for (const eventsPerChange of values(groupedByChange)) {
           if (eventsPerChange.length <= 5) {
             eventsPerChange.forEach(event => {
-              notifyForSingleChange(event.application, event.oldApplication);
+              notifyForSingleChange(event.application, event.oldApplication)
             })
           } else {
             notifyForBulkChange({
@@ -92,12 +91,12 @@ export default {
           }
         }
       }
-    });
+    })
 
     applicationStore.addEventListener('updated', (application, oldApplication) => {
       if (application.status !== oldApplication.status) {
-        queue.next({application, oldApplication});
+        queue.next({ application, oldApplication })
       }
-    });
+    })
   }
 }

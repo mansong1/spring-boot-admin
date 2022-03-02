@@ -17,6 +17,13 @@
 package de.codecentric.boot.admin.server.config;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import de.codecentric.boot.admin.server.eventstore.InstanceEventStore;
+import de.codecentric.boot.admin.server.services.ApplicationRegistry;
+import de.codecentric.boot.admin.server.services.InstanceRegistry;
+import de.codecentric.boot.admin.server.utils.jackson.AdminServerModule;
+import de.codecentric.boot.admin.server.web.ApplicationsController;
+import de.codecentric.boot.admin.server.web.InstancesController;
+import de.codecentric.boot.admin.server.web.client.InstanceWebClient;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -26,103 +33,100 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.reactive.accept.RequestedContentTypeResolver;
 
-import de.codecentric.boot.admin.server.eventstore.InstanceEventStore;
-import de.codecentric.boot.admin.server.services.ApplicationRegistry;
-import de.codecentric.boot.admin.server.services.InstanceRegistry;
-import de.codecentric.boot.admin.server.utils.jackson.AdminServerModule;
-import de.codecentric.boot.admin.server.web.ApplicationsController;
-import de.codecentric.boot.admin.server.web.InstancesController;
-import de.codecentric.boot.admin.server.web.client.InstanceWebClient;
-
 @Configuration(proxyBeanMethods = false)
 public class AdminServerWebConfiguration {
 
-	private final AdminServerProperties adminServerProperties;
+  private final AdminServerProperties adminServerProperties;
 
-	public AdminServerWebConfiguration(AdminServerProperties adminServerProperties) {
-		this.adminServerProperties = adminServerProperties;
-	}
+  public AdminServerWebConfiguration(AdminServerProperties adminServerProperties) {
+    this.adminServerProperties = adminServerProperties;
+  }
 
-	@Bean
-	public SimpleModule adminJacksonModule() {
-		return new AdminServerModule(this.adminServerProperties.getMetadataKeysToSanitize());
-	}
+  @Bean
+  public SimpleModule adminJacksonModule() {
+    return new AdminServerModule(this.adminServerProperties.getMetadataKeysToSanitize());
+  }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public InstancesController instancesController(InstanceRegistry instanceRegistry, InstanceEventStore eventStore) {
-		return new InstancesController(instanceRegistry, eventStore);
-	}
+  @Bean
+  @ConditionalOnMissingBean
+  public InstancesController instancesController(
+      InstanceRegistry instanceRegistry, InstanceEventStore eventStore) {
+    return new InstancesController(instanceRegistry, eventStore);
+  }
 
-	@Bean
-	@ConditionalOnMissingBean
-	public ApplicationsController applicationsController(ApplicationRegistry applicationRegistry) {
-		return new ApplicationsController(applicationRegistry);
-	}
+  @Bean
+  @ConditionalOnMissingBean
+  public ApplicationsController applicationsController(ApplicationRegistry applicationRegistry) {
+    return new ApplicationsController(applicationRegistry);
+  }
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
-	public static class ReactiveRestApiConfiguration {
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
+  public static class ReactiveRestApiConfiguration {
 
-		private final AdminServerProperties adminServerProperties;
+    private final AdminServerProperties adminServerProperties;
 
-		public ReactiveRestApiConfiguration(AdminServerProperties adminServerProperties) {
-			this.adminServerProperties = adminServerProperties;
-		}
+    public ReactiveRestApiConfiguration(AdminServerProperties adminServerProperties) {
+      this.adminServerProperties = adminServerProperties;
+    }
 
-		@Bean
-		@ConditionalOnMissingBean
-		public de.codecentric.boot.admin.server.web.reactive.InstancesProxyController instancesProxyController(
-				InstanceRegistry instanceRegistry, InstanceWebClient.Builder instanceWebClientBuilder) {
-			return new de.codecentric.boot.admin.server.web.reactive.InstancesProxyController(
-					this.adminServerProperties.getContextPath(),
-					this.adminServerProperties.getInstanceProxy().getIgnoredHeaders(), instanceRegistry,
-					instanceWebClientBuilder.build());
-		}
+    @Bean
+    @ConditionalOnMissingBean
+    public de.codecentric.boot.admin.server.web.reactive.InstancesProxyController
+        instancesProxyController(
+            InstanceRegistry instanceRegistry, InstanceWebClient.Builder instanceWebClientBuilder) {
+      return new de.codecentric.boot.admin.server.web.reactive.InstancesProxyController(
+          this.adminServerProperties.getContextPath(),
+          this.adminServerProperties.getInstanceProxy().getIgnoredHeaders(),
+          instanceRegistry,
+          instanceWebClientBuilder.build());
+    }
 
-		@Bean
-		public org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping adminHandlerMapping(
-				RequestedContentTypeResolver webFluxContentTypeResolver) {
-			org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping mapping = new de.codecentric.boot.admin.server.web.reactive.AdminControllerHandlerMapping(
-					this.adminServerProperties.getContextPath());
-			mapping.setOrder(0);
-			mapping.setContentTypeResolver(webFluxContentTypeResolver);
-			return mapping;
-		}
+    @Bean
+    public org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping
+        adminHandlerMapping(RequestedContentTypeResolver webFluxContentTypeResolver) {
+      org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping
+          mapping =
+              new de.codecentric.boot.admin.server.web.reactive.AdminControllerHandlerMapping(
+                  this.adminServerProperties.getContextPath());
+      mapping.setOrder(0);
+      mapping.setContentTypeResolver(webFluxContentTypeResolver);
+      return mapping;
+    }
+  }
 
-	}
+  @Configuration(proxyBeanMethods = false)
+  @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+  @AutoConfigureAfter(WebMvcAutoConfiguration.class)
+  public static class ServletRestApiConfirguation {
 
-	@Configuration(proxyBeanMethods = false)
-	@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-	@AutoConfigureAfter(WebMvcAutoConfiguration.class)
-	public static class ServletRestApiConfirguation {
+    private final AdminServerProperties adminServerProperties;
 
-		private final AdminServerProperties adminServerProperties;
+    public ServletRestApiConfirguation(AdminServerProperties adminServerProperties) {
+      this.adminServerProperties = adminServerProperties;
+    }
 
-		public ServletRestApiConfirguation(AdminServerProperties adminServerProperties) {
-			this.adminServerProperties = adminServerProperties;
-		}
+    @Bean
+    @ConditionalOnMissingBean
+    public de.codecentric.boot.admin.server.web.servlet.InstancesProxyController
+        instancesProxyController(
+            InstanceRegistry instanceRegistry, InstanceWebClient.Builder instanceWebClientBuilder) {
+      return new de.codecentric.boot.admin.server.web.servlet.InstancesProxyController(
+          this.adminServerProperties.getContextPath(),
+          this.adminServerProperties.getInstanceProxy().getIgnoredHeaders(),
+          instanceRegistry,
+          instanceWebClientBuilder.build());
+    }
 
-		@Bean
-		@ConditionalOnMissingBean
-		public de.codecentric.boot.admin.server.web.servlet.InstancesProxyController instancesProxyController(
-				InstanceRegistry instanceRegistry, InstanceWebClient.Builder instanceWebClientBuilder) {
-			return new de.codecentric.boot.admin.server.web.servlet.InstancesProxyController(
-					this.adminServerProperties.getContextPath(),
-					this.adminServerProperties.getInstanceProxy().getIgnoredHeaders(), instanceRegistry,
-					instanceWebClientBuilder.build());
-		}
-
-		@Bean
-		public org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping adminHandlerMapping(
-				ContentNegotiationManager contentNegotiationManager) {
-			org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping mapping = new de.codecentric.boot.admin.server.web.servlet.AdminControllerHandlerMapping(
-					this.adminServerProperties.getContextPath());
-			mapping.setOrder(0);
-			mapping.setContentNegotiationManager(contentNegotiationManager);
-			return mapping;
-		}
-
-	}
-
+    @Bean
+    public org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping
+        adminHandlerMapping(ContentNegotiationManager contentNegotiationManager) {
+      org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping mapping =
+          new de.codecentric.boot.admin.server.web.servlet.AdminControllerHandlerMapping(
+              this.adminServerProperties.getContextPath());
+      mapping.setOrder(0);
+      mapping.setContentNegotiationManager(contentNegotiationManager);
+      return mapping;
+    }
+  }
 }

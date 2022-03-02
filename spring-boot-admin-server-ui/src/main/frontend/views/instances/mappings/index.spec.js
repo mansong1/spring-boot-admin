@@ -1,13 +1,13 @@
-import {render} from '@/test-utils';
+import { render } from '@/test-utils'
 import Mappings from './index'
-import Instance from '@/services/instance';
-import {screen, waitFor} from '@testing-library/vue';
-import {mappings} from '@/mocks/instance/mappings/data';
+import Instance from '@/services/instance'
+import { screen, waitFor } from '@testing-library/vue'
+import { mappings } from '@/mocks/instance/mappings/data'
 
-const mockedMapping = mappings.contexts['spring-boot-admin-sample-servlet'].mappings;
-const dispatcherServlets = mockedMapping.dispatcherServlets;
-const servlets = mockedMapping.servlets;
-const servletFilters = mockedMapping.servletFilters;
+const mockedMapping = mappings.contexts['spring-boot-admin-sample-servlet'].mappings
+const dispatcherServlets = mockedMapping.dispatcherServlets
+const servlets = mockedMapping.servlets
+const servletFilters = mockedMapping.servletFilters
 
 describe('Mappings', () => {
   it('should render the header for a context when just context name is provided', async () => {
@@ -17,8 +17,8 @@ describe('Mappings', () => {
       }
     })
 
-    const header = await waitFor(() => screen.getByRole('heading', {name: 'spring-boot-admin-sample-servlet'}))
-    expect(header).toBeVisible();
+    const header = await waitFor(() => screen.getByRole('heading', { name: 'spring-boot-admin-sample-servlet' }))
+    expect(header).toBeVisible()
   })
 
   it('should render handler name when dispatcherServlets are available', async () => {
@@ -31,8 +31,8 @@ describe('Mappings', () => {
         }
       }
     })
-    const element = await waitFor(() => screen.getByRole('cell', {name: 'Actuator root web endpoint'}))
-    expect(element).toBeVisible();
+    const element = await waitFor(() => screen.getByRole('cell', { name: 'Actuator root web endpoint' }))
+    expect(element).toBeVisible()
   })
 
   it('should render classname when servlets are available', async () => {
@@ -45,8 +45,8 @@ describe('Mappings', () => {
         }
       }
     })
-    const element = await waitFor(() => screen.getByRole('cell', {name: 'org.springframework.web.servlet.DispatcherServlet'}))
-    expect(element).toBeVisible();
+    const element = await waitFor(() => screen.getByRole('cell', { name: 'org.springframework.web.servlet.DispatcherServlet' }))
+    expect(element).toBeVisible()
   })
 
   it('should render classname when servletFilters are available', async () => {
@@ -59,12 +59,12 @@ describe('Mappings', () => {
         }
       }
     })
-    const element = await waitFor(() => screen.getByRole('cell', {name: 'webMvcMetricsFilter'}))
-    expect(element).toBeVisible();
+    const element = await waitFor(() => screen.getByRole('cell', { name: 'webMvcMetricsFilter' }))
+    expect(element).toBeVisible()
   })
 
   // Helpers
-  function renderWithInstance(data) {
+  function renderWithInstance (data) {
     render(Mappings, {
       props: {
         instance: createInstanceWithMappingsData(data)
@@ -72,14 +72,14 @@ describe('Mappings', () => {
     })
   }
 
-  function createInstanceWithMappingsData(data) {
-    let instance = new Instance({id: 4711});
+  function createInstanceWithMappingsData (data) {
+    const instance = new Instance({ id: 4711 })
     instance.fetchMappings = () => ({
       headers: {
         'content-type': 'application/vnd.spring-boot.actuator.v2'
       },
       data
     })
-    return instance;
+    return instance
   }
-});
+})

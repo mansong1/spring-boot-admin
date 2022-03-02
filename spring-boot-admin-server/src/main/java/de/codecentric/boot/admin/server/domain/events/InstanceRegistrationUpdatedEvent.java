@@ -16,10 +16,9 @@
 
 package de.codecentric.boot.admin.server.domain.events;
 
-import java.time.Instant;
-
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import de.codecentric.boot.admin.server.domain.values.Registration;
+import java.time.Instant;
 
 /**
  * This event gets emitted when an instance updates it's registration.
@@ -31,20 +30,20 @@ import de.codecentric.boot.admin.server.domain.values.Registration;
 @lombok.ToString(callSuper = true)
 public class InstanceRegistrationUpdatedEvent extends InstanceEvent {
 
-	public static final String TYPE = "REGISTRATION_UPDATED";
+  public static final String TYPE = "REGISTRATION_UPDATED";
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	private final Registration registration;
+  private final Registration registration;
 
-	public InstanceRegistrationUpdatedEvent(InstanceId instance, long version, Registration registration) {
-		this(instance, version, Instant.now(), registration);
-	}
+  public InstanceRegistrationUpdatedEvent(
+      InstanceId instance, long version, Registration registration) {
+    this(instance, version, Instant.now(), registration);
+  }
 
-	public InstanceRegistrationUpdatedEvent(InstanceId instance, long version, Instant timestamp,
-			Registration registration) {
-		super(instance, version, TYPE, timestamp);
-		this.registration = registration;
-	}
-
+  public InstanceRegistrationUpdatedEvent(
+      InstanceId instance, long version, Instant timestamp, Registration registration) {
+    super(instance, version, TYPE, timestamp);
+    this.registration = registration;
+  }
 }

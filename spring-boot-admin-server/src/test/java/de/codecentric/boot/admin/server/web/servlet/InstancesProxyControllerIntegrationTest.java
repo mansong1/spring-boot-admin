@@ -16,8 +16,9 @@
 
 package de.codecentric.boot.admin.server.web.servlet;
 
+import de.codecentric.boot.admin.server.AdminServletApplicationTest;
+import de.codecentric.boot.admin.server.web.AbstractInstancesProxyControllerIntegrationTest;
 import javax.annotation.Nullable;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,32 +26,29 @@ import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import de.codecentric.boot.admin.server.AdminServletApplicationTest;
-import de.codecentric.boot.admin.server.web.AbstractInstancesProxyControllerIntegrationTest;
+public class InstancesProxyControllerIntegrationTest
+    extends AbstractInstancesProxyControllerIntegrationTest {
 
-public class InstancesProxyControllerIntegrationTest extends AbstractInstancesProxyControllerIntegrationTest {
+  @Nullable private static ConfigurableApplicationContext context;
 
-	@Nullable
-	private static ConfigurableApplicationContext context;
+  @BeforeAll
+  public static void setUpContext() {
+    context =
+        new SpringApplicationBuilder()
+            .sources(AdminServletApplicationTest.TestAdminApplication.class)
+            .web(WebApplicationType.SERVLET)
+            .run("--server.port=0", "--spring.boot.admin.monitor.default-timeout=2500");
+  }
 
-	@BeforeAll
-	public static void setUpContext() {
-		context = new SpringApplicationBuilder().sources(AdminServletApplicationTest.TestAdminApplication.class)
-				.web(WebApplicationType.SERVLET)
-				.run("--server.port=0", "--spring.boot.admin.monitor.default-timeout=2500");
+  @BeforeEach
+  public void setUpClient() {
+    super.setUpClient(context);
+  }
 
-	}
-
-	@BeforeEach
-	public void setUpClient() {
-		super.setUpClient(context);
-	}
-
-	@AfterAll
-	public static void tearDownContext() {
-		if (context != null) {
-			context.close();
-		}
-	}
-
+  @AfterAll
+  public static void tearDownContext() {
+    if (context != null) {
+      context.close();
+    }
+  }
 }

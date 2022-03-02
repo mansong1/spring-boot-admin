@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import {render} from '../test-utils';
-import SbaModal from './sba-modal';
-import userEvent from '@testing-library/user-event';
-import {screen} from '@testing-library/vue';
+import { render } from '../test-utils'
+import SbaModal from './sba-modal'
+import userEvent from '@testing-library/user-event'
+import { screen } from '@testing-library/vue'
 
 describe('sba-modal.vue', () => {
   it('modal is closed when close button is clicked', async () => {
-    const {emitted} = render(SbaModal, {props: {open: true}})
+    const { emitted } = render(SbaModal, { props: { open: true } })
 
-    userEvent.click(screen.getByLabelText('close'));
+    userEvent.click(screen.getByLabelText('close'))
 
-    expect(emitted().change[0]).toContain(false);
+    expect(emitted().change[0]).toContain(false)
   })
 })

@@ -16,6 +16,7 @@
 
 package de.codecentric.boot.admin.server.ui;
 
+import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.SpringBootConfiguration;
@@ -27,43 +28,48 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import de.codecentric.boot.admin.server.config.EnableAdminServer;
-
 public class AdminUiServletApplicationTest extends AbstractAdminUiApplicationTest {
 
-	private ConfigurableApplicationContext instance;
+  private ConfigurableApplicationContext instance;
 
-	@BeforeEach
-	public void setUp() {
-		this.instance = new SpringApplicationBuilder().sources(TestAdminApplication.class)
-				.web(WebApplicationType.SERVLET).run("--server.port=0",
-						"--spring.boot.admin.ui.extension-resource-locations=classpath:/META-INF/test-extensions/",
-						"--spring.boot.admin.ui.available-languages=de");
+  @BeforeEach
+  public void setUp() {
+    this.instance =
+        new SpringApplicationBuilder()
+            .sources(TestAdminApplication.class)
+            .web(WebApplicationType.SERVLET)
+            .run(
+                "--server.port=0",
+                "--spring.boot.admin.ui.extension-resource-locations=classpath:/META-INF/test-extensions/",
+                "--spring.boot.admin.ui.available-languages=de");
 
-		super.setUp(this.instance.getEnvironment().getProperty("local.server.port", Integer.class, 0));
-	}
+    super.setUp(this.instance.getEnvironment().getProperty("local.server.port", Integer.class, 0));
+  }
 
-	@AfterEach
-	public void shutdown() {
-		this.instance.close();
-	}
+  @AfterEach
+  public void shutdown() {
+    this.instance.close();
+  }
 
-	@EnableAdminServer
-	@EnableAutoConfiguration
-	@SpringBootConfiguration
-	public static class TestAdminApplication {
+  @EnableAdminServer
+  @EnableAutoConfiguration
+  @SpringBootConfiguration
+  public static class TestAdminApplication {
 
-		@Configuration(proxyBeanMethods = false)
-		public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Configuration(proxyBeanMethods = false)
+    public static class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-			@Override
-			protected void configure(HttpSecurity http) throws Exception {
-				http.authorizeRequests().anyRequest().permitAll()//
-						.and().csrf().disable().anonymous().principal("anonymousUser");
-			}
-
-		}
-
-	}
-
+      @Override
+      protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests()
+            .anyRequest()
+            .permitAll() //
+            .and()
+            .csrf()
+            .disable()
+            .anonymous()
+            .principal("anonymousUser");
+      }
+    }
+  }
 }

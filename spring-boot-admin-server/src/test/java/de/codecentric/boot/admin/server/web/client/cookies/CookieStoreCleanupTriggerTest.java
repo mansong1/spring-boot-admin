@@ -16,42 +16,40 @@
 
 package de.codecentric.boot.admin.server.web.client.cookies;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import reactor.test.publisher.TestPublisher;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import de.codecentric.boot.admin.server.domain.entities.Instance;
 import de.codecentric.boot.admin.server.domain.events.InstanceDeregisteredEvent;
 import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
 import de.codecentric.boot.admin.server.domain.values.InstanceId;
-
-import static org.awaitility.Awaitility.await;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import reactor.test.publisher.TestPublisher;
 
 class CookieStoreCleanupTriggerTest {
 
-	private static final Instance INSTANCE = Instance.create(InstanceId.of("i"));
+  private static final Instance INSTANCE = Instance.create(InstanceId.of("i"));
 
-	private final TestPublisher<InstanceEvent> events = TestPublisher.create();
+  private final TestPublisher<InstanceEvent> events = TestPublisher.create();
 
-	private PerInstanceCookieStore cookieStore;
+  private PerInstanceCookieStore cookieStore;
 
-	private CookieStoreCleanupTrigger trigger;
+  private CookieStoreCleanupTrigger trigger;
 
-	@BeforeEach
-	void setUp() throws Exception {
-		cookieStore = mock(PerInstanceCookieStore.class);
-		trigger = new CookieStoreCleanupTrigger(this.events.flux(), cookieStore);
-		trigger.start();
-		await().until(this.events::wasSubscribed);
-	}
+  @BeforeEach
+  void setUp() throws Exception {
+    cookieStore = mock(PerInstanceCookieStore.class);
+    trigger = new CookieStoreCleanupTrigger(this.events.flux(), cookieStore);
+    trigger.start();
+    await().until(this.events::wasSubscribed);
+  }
 
-	@Test
-	void deregisterevent_should_trigger_cleanup_cookiestore() {
-		this.events.next(new InstanceDeregisteredEvent(INSTANCE.getId(), 42L));
+  @Test
+  void deregisterevent_should_trigger_cleanup_cookiestore() {
+    this.events.next(new InstanceDeregisteredEvent(INSTANCE.getId(), 42L));
 
-		verify(cookieStore).cleanupInstance(INSTANCE.getId());
-	}
-
+    verify(cookieStore).cleanupInstance(INSTANCE.getId());
+  }
 }

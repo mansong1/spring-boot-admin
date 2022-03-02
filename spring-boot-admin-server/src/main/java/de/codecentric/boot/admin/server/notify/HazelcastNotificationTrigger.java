@@ -16,50 +16,49 @@
 
 package de.codecentric.boot.admin.server.notify;
 
+import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
+import de.codecentric.boot.admin.server.domain.values.InstanceId;
 import java.util.concurrent.ConcurrentMap;
-
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import de.codecentric.boot.admin.server.domain.events.InstanceEvent;
-import de.codecentric.boot.admin.server.domain.values.InstanceId;
-
 public class HazelcastNotificationTrigger extends NotificationTrigger {
 
-	private static final Logger log = LoggerFactory.getLogger(HazelcastNotificationTrigger.class);
+  private static final Logger log = LoggerFactory.getLogger(HazelcastNotificationTrigger.class);
 
-	private final ConcurrentMap<InstanceId, Long> sentNotifications;
+  private final ConcurrentMap<InstanceId, Long> sentNotifications;
 
-	public HazelcastNotificationTrigger(Notifier notifier, Publisher<InstanceEvent> events,
-			ConcurrentMap<InstanceId, Long> sentNotifications) {
-		super(notifier, events);
-		this.sentNotifications = sentNotifications;
-	}
+  public HazelcastNotificationTrigger(
+      Notifier notifier,
+      Publisher<InstanceEvent> events,
+      ConcurrentMap<InstanceId, Long> sentNotifications) {
+    super(notifier, events);
+    this.sentNotifications = sentNotifications;
+  }
 
-	@Override
-	protected Mono<Void> sendNotifications(InstanceEvent event) {
-		while (true) {
-			Long lastSentEvent = this.sentNotifications.getOrDefault(event.getInstance(), -1L);
-			if (lastSentEvent >= event.getVersion()) {
-				log.debug("Notifications already sent. Not triggering notifiers for {}", event);
-				return Mono.empty();
-			}
+  @Override
+  protected Mono<Void> sendNotifications(InstanceEvent event) {
+    while (true) {
+      Long lastSentEvent = this.sentNotifications.getOrDefault(event.getInstance(), -1L);
+      if (lastSentEvent >= event.getVersion()) {
+        log.debug("Notifications already sent. Not triggering notifiers for {}", event);
+        return Mono.empty();
+      }
 
-			if (lastSentEvent < 0) {
-				if (this.sentNotifications.putIfAbsent(event.getInstance(), event.getVersion()) == null) {
-					log.debug("Triggering notifiers for {}", event);
-					return super.sendNotifications(event);
-				}
-			}
-			else {
-				if (this.sentNotifications.replace(event.getInstance(), lastSentEvent, event.getVersion())) {
-					log.debug("Triggering notifiers for {}", event);
-					return super.sendNotifications(event);
-				}
-			}
-		}
-	}
-
+      if (lastSentEvent < 0) {
+        if (this.sentNotifications.putIfAbsent(event.getInstance(), event.getVersion()) == null) {
+          log.debug("Triggering notifiers for {}", event);
+          return super.sendNotifications(event);
+        }
+      } else {
+        if (this.sentNotifications.replace(
+            event.getInstance(), lastSentEvent, event.getVersion())) {
+          log.debug("Triggering notifiers for {}", event);
+          return super.sendNotifications(event);
+        }
+      }
+    }
+  }
 }

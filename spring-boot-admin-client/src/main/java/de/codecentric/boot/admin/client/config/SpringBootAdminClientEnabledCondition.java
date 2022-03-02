@@ -25,8 +25,10 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
  * This condition checks if the client should be enabled. Two properties are checked:
- * spring.boot.admin.client.enabled and spring.boot.admin.client.url. The following table
- * shows under which conditions the client is active. <pre>
+ * spring.boot.admin.client.enabled and spring.boot.admin.client.url. The following table shows
+ * under which conditions the client is active.
+ *
+ * <pre>
  *           | enabled: false | enabled: true (default) |
  * --------- | -------------- | ----------------------- |
  * url empty | inactive       | inactive                |
@@ -37,27 +39,28 @@ import org.springframework.core.type.AnnotatedTypeMetadata;
  */
 public class SpringBootAdminClientEnabledCondition extends SpringBootCondition {
 
-	@Override
-	public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata annotatedTypeMetadata) {
-		ClientProperties clientProperties = getClientProperties(context);
+  @Override
+  public ConditionOutcome getMatchOutcome(
+      ConditionContext context, AnnotatedTypeMetadata annotatedTypeMetadata) {
+    ClientProperties clientProperties = getClientProperties(context);
 
-		if (!clientProperties.isEnabled()) {
-			return ConditionOutcome
-					.noMatch("Spring Boot Client is disabled, because 'spring.boot.admin.client.enabled' is false.");
-		}
+    if (!clientProperties.isEnabled()) {
+      return ConditionOutcome.noMatch(
+          "Spring Boot Client is disabled, because 'spring.boot.admin.client.enabled' is false.");
+    }
 
-		if (clientProperties.getUrl().length == 0) {
-			return ConditionOutcome
-					.noMatch("Spring Boot Client is disabled, because 'spring.boot.admin.client.url' is empty.");
-		}
+    if (clientProperties.getUrl().length == 0) {
+      return ConditionOutcome.noMatch(
+          "Spring Boot Client is disabled, because 'spring.boot.admin.client.url' is empty.");
+    }
 
-		return ConditionOutcome.match();
-	}
+    return ConditionOutcome.match();
+  }
 
-	private ClientProperties getClientProperties(ConditionContext context) {
-		ClientProperties clientProperties = new ClientProperties();
-		Binder.get(context.getEnvironment()).bind("spring.boot.admin.client", Bindable.ofInstance(clientProperties));
-		return clientProperties;
-	}
-
+  private ClientProperties getClientProperties(ConditionContext context) {
+    ClientProperties clientProperties = new ClientProperties();
+    Binder.get(context.getEnvironment())
+        .bind("spring.boot.admin.client", Bindable.ofInstance(clientProperties));
+    return clientProperties;
+  }
 }

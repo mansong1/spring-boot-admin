@@ -16,36 +16,37 @@
 
 package de.codecentric.boot.admin.client.registration.metadata;
 
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import java.util.Map;
+import org.junit.jupiter.api.Test;
+
 public class CompositeMetadataContributorTest {
 
-	@Test
-	public void should_merge_metadata() {
-		CompositeMetadataContributor contributor = new CompositeMetadataContributor(
-				asList(() -> singletonMap("a", "first"), () -> singletonMap("b", "second"),
-						() -> singletonMap("b", "second-new")));
+  @Test
+  public void should_merge_metadata() {
+    CompositeMetadataContributor contributor =
+        new CompositeMetadataContributor(
+            asList(
+                () -> singletonMap("a", "first"),
+                () -> singletonMap("b", "second"),
+                () -> singletonMap("b", "second-new")));
 
-		Map<String, String> metadata = contributor.getMetadata();
+    Map<String, String> metadata = contributor.getMetadata();
 
-		assertThat(metadata).containsExactly(entry("a", "first"), entry("b", "second-new"));
-	}
+    assertThat(metadata).containsExactly(entry("a", "first"), entry("b", "second-new"));
+  }
 
-	@Test
-	public void should_return_empty_metadata() {
-		CompositeMetadataContributor contributor = new CompositeMetadataContributor(emptyList());
+  @Test
+  public void should_return_empty_metadata() {
+    CompositeMetadataContributor contributor = new CompositeMetadataContributor(emptyList());
 
-		Map<String, String> metadata = contributor.getMetadata();
+    Map<String, String> metadata = contributor.getMetadata();
 
-		assertThat(metadata).isEmpty();
-	}
-
+    assertThat(metadata).isEmpty();
+  }
 }
