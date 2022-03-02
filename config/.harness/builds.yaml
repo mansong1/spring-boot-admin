@@ -84,7 +84,7 @@ pipeline:
                                           image: maven:3.8.4-openjdk-8
                                           language: Java
                                           buildTool: Maven
-                                          args: -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                          args: verify -D maven.javadoc.skip=true
                                           runOnlySelectedTests: true
                                           reports:
                                               type: JUnit
