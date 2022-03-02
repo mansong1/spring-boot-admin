@@ -40,6 +40,21 @@ pipeline:
                                               mvn -version
                                               mvn -B spring-javaformat:apply --no-transfer-progress
                                           shell: Powershell
+                                - step:
+                                      type: RunTests
+                                      name: Tests
+                                      identifier: Tests
+                                      spec:
+                                          language: Java
+                                          buildTool: Maven
+                                          args: -B verify -P coverage --no-transfer-progress -D maven.javadoc.skip=true
+                                          runOnlySelectedTests: true
+                                          reports:
+                                              type: JUnit
+                                              spec:
+                                                  paths:
+                                                      - "**/*.xml"
+                                          shell: Powershell
               - stage:
                     name: linux
                     identifier: linux1
