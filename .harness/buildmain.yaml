@@ -51,14 +51,13 @@ pipeline:
                                     runOnlySelectedTests: true
                                     preCommand: |
                                         #ET-SETUP-BEGIN
-                                        which curl
                                         PROJ_DIR=$PWD
                                         cd /opt
                                         arch=`uname -m`
                                         if [ $arch = "x86_64" ]; then
-                                          wget -qO- https://get.et.harness.io/releases/latest/nix/harness-et-agent.tar.gz | tar -xz
+                                          curl https://get.et.harness.io/releases/latest/nix/harness-et-agent.tar.gz | tar -xz
                                         elif [ $arch = "aarch64" ]; then
-                                          wget -qO- https://get.et.harness.io/releases/latest/arm/harness-et-agent.tar.gz | tar -xz
+                                          curl https://get.et.harness.io/releases/latest/arm/harness-et-agent.tar.gz | tar -xz
                                         fi
                                         export ET_COLLECTOR_URL=https://app.harness.io/gratis/et-collector
                                         export ET_APPLICATION_NAME=$HARNESS_PIPELINE_ID
