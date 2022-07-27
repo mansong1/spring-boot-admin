@@ -20,6 +20,7 @@ pipeline:
                   sharedPaths:
                       - ~/.m2/repository
                       - /opt
+                      - /usr
                   infrastructure:
                       type: KubernetesDirect
                       spec:
