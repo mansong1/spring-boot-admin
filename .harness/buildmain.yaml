@@ -25,8 +25,10 @@ pipeline:
                           connectorRef: account.EKS
                           namespace: harness-delegate-ng
                           automountServiceAccountToken: true
-                          nodeSelector: {}
-                          os: Linux
+                          nodeSelector:
+                              kubernetes.io/os: <+matrix.os>
+                              kubernetes.io/arch: amd64
+                          os: <+input>
                   execution:
                       steps:
                           - step:
