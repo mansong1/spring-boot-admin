@@ -19,6 +19,7 @@ pipeline:
                   cloneCodebase: true
                   sharedPaths:
                       - ~/.m2/repository
+                      - /opt
                   infrastructure:
                       type: KubernetesDirect
                       spec:
