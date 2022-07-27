@@ -1,0 +1,14 @@
+inputSet:
+  identifier: "default"
+  name: "default"
+  orgIdentifier: "default"
+  projectIdentifier: "SpringBootAdmin"
+  pipeline:
+    identifier: "buildmain"
+    properties:
+      ci:
+        codebase:
+          build:
+            type: "branch"
+            spec:
+              branch: "<+trigger.branch>"
