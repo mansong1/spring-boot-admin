@@ -29,7 +29,7 @@ pipeline:
                               - effect: NoSchedule
                                 key: os
                                 operator: Equal
-                                value: <+matrix
+                                value: <+matrix.os>
                           nodeSelector:
                               kubernetes.io/os: <+matrix.os>
                               kubernetes.io/arch: amd64
