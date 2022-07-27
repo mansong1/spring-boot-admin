@@ -1,0 +1,40 @@
+pipeline:
+    name: build-main
+    identifier: buildmain
+    projectIdentifier: SpringBootAdmin
+    orgIdentifier: default
+    tags: {}
+    properties:
+        ci:
+            codebase:
+                connectorRef: account.Github
+                repoName: spring-boot-admin
+                build: <+input>
+    stages:
+        - stage:
+              name: build
+              identifier: build
+              type: CI
+              spec:
+                  cloneCodebase: true
+                  sharedPaths:
+                      - ~/.m2/repository
+                  infrastructure:
+                      type: KubernetesDirect
+                      spec:
+                          connectorRef: account.EKS
+                          namespace: harness-delegate-ng
+                          automountServiceAccountToken: true
+                          nodeSelector: {}
+                          os: Linux
+                  execution:
+                      steps:
+                          - step:
+                                type: Run
+                                name: echo
+                                identifier: echo
+                                spec:
+                                    connectorRef: account.harnessImage
+                                    image: bash:latest
+                                    shell: Bash
+                                    command: echo "Hello"
