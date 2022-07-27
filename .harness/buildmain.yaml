@@ -25,13 +25,8 @@ pipeline:
                           connectorRef: account.EKS
                           namespace: harness-delegate-ng
                           automountServiceAccountToken: true
-                          tolerations:
-                              - effect: NoSchedule
-                                key: os
-                                operator: Equal
-                                value: <+matrix.os>
                           nodeSelector:
-                              kubernetes.io/os: <+matrix.os>
+                              kubernetes.io/os: linux
                               kubernetes.io/arch: amd64
                           os: Linux
                   execution:
@@ -82,9 +77,3 @@ pipeline:
                                         spec:
                                             paths:
                                                 - "**/*.xml"
-              strategy:
-                  matrix:
-                      os:
-                          - linux
-                          - windows
-                      maxConcurrency: 3
