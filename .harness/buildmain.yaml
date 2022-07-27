@@ -28,7 +28,7 @@ pipeline:
                           nodeSelector:
                               kubernetes.io/os: <+matrix.os>
                               kubernetes.io/arch: amd64
-                          os: <+input>
+                          os: Linux
                   execution:
                       steps:
                           - step:
