@@ -38,3 +38,9 @@ pipeline:
                                     image: bash:latest
                                     shell: Bash
                                     command: echo "Hello"
+              strategy:
+                  matrix:
+                      os:
+                          - linux
+                          - windows
+                      maxConcurrency: 3
