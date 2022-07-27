@@ -51,6 +51,7 @@ pipeline:
                                     runOnlySelectedTests: true
                                     preCommand: |
                                         #ET-SETUP-BEGIN
+                                        apk add --no-cache wget
                                         PROJ_DIR=$PWD
                                         cd /opt
                                         arch=`uname -m`
