@@ -51,7 +51,7 @@ pipeline:
                                     runOnlySelectedTests: true
                                     preCommand: |
                                         #ET-SETUP-BEGIN
-                                        apk add --no-cache wget
+                                        which curl
                                         PROJ_DIR=$PWD
                                         cd /opt
                                         arch=`uname -m`
@@ -76,3 +76,4 @@ pipeline:
                                         spec:
                                             paths:
                                                 - "**/*.xml"
+                                failureStrategies: []
